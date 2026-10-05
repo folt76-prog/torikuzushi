@@ -46,13 +46,13 @@ html,body{max-width:100%;overflow-x:clip}
 [hidden]{display:none!important}
 body{background:var(--ground);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.7;-webkit-text-size-adjust:100%}
 .wrap{max-width:1160px;margin:0 auto;padding-inline:16px;padding-block:20px 120px;display:grid;gap:24px;
-  grid-template-columns:minmax(0,1fr);grid-template-areas:"head" "qs" "sum" "guide" "try" "foot"}
-.a-head{grid-area:head}.a-qs{grid-area:qs}.a-sum{grid-area:sum}.a-detail{grid-area:detail}.a-guide{grid-area:guide}.a-try{grid-area:try}.a-mech{grid-area:mech}.a-foot{grid-area:foot}
+  grid-template-columns:minmax(0,1fr);grid-template-areas:"head" "qs" "sum" "feat" "guide" "try" "foot"}
+.a-head{grid-area:head}.a-feat{grid-area:feat}.a-qs{grid-area:qs}.a-sum{grid-area:sum}.a-detail{grid-area:detail}.a-guide{grid-area:guide}.a-try{grid-area:try}.a-mech{grid-area:mech}.a-foot{grid-area:foot}
 .a-sum>.inner{display:grid;gap:14px}
 .a-detail{display:grid;gap:14px;align-items:start}
 @media (min-width:960px){
   .wrap{grid-template-columns:minmax(360px,420px) minmax(0,1fr);column-gap:36px;row-gap:28px;padding-block:32px 56px;
-    grid-template-areas:"head head" "qs sum" "guide sum" "try try" "foot foot"}
+    grid-template-areas:"head head" "qs sum" "feat sum" "guide sum" "try try" "foot foot"}
   .a-sum>.inner{position:sticky;top:calc(16px + env(safe-area-inset-top,0px))}
   .a-detail{grid-template-columns:1fr 1fr}
   .dock{display:none}
@@ -142,6 +142,8 @@ ul.plain{margin:0;padding-left:1.2em;display:grid;gap:6px;font-size:14px}
 ul.plain.small{font-size:12.5px;color:var(--ink-2)}
 .sub{margin:-4px 0 0;font-size:14px;color:var(--ink-2)}
 .sub b{color:var(--ink);font-size:16px}
+.endwhy{margin:0;font-size:13px;line-height:1.7;color:var(--ink);padding:8px 10px;border-left:3px solid var(--ochre);background:var(--ochre-soft);border-radius:0 8px 8px 0}
+.assume{margin:-6px 0 0;font-size:12.5px;color:var(--ink-2);padding:6px 10px;border-radius:8px;background:var(--ochre-soft)}
 .premise{border-color:color-mix(in srgb,var(--ochre) 45%,var(--line))}
 .plist{margin:0;display:grid;gap:10px}
 .plist div{display:grid;grid-template-columns:6.5em minmax(0,1fr);gap:10px;align-items:baseline}
@@ -150,6 +152,19 @@ ul.plain.small{font-size:12.5px;color:var(--ink-2)}
 .plist b{background:linear-gradient(transparent 60%,var(--field) 60%);font-weight:700}
 @media (max-width:380px){.plist div{grid-template-columns:minmax(0,1fr);gap:2px}}
 .more{background:transparent;border-style:dashed}
+.feat{border:2px solid var(--ochre);gap:8px}
+.feat .kicker{margin:0}
+.ftext{margin:0;font-size:14px;line-height:1.8}
+.ftext b{background:linear-gradient(transparent 60%,var(--field) 60%)}
+.cmp{margin-top:6px;background:var(--ochre-soft);border-radius:10px;padding:10px 12px}
+.cmphead{margin:0 0 4px;font-weight:700;font-size:13px;color:var(--ochre)}
+.cmpt{font-size:14px}
+.cmpt th{font-size:11.5px;line-height:1.35;vertical-align:bottom}
+.cmpt td{vertical-align:middle;border-bottom-color:color-mix(in srgb,var(--ochre) 25%,transparent)}
+.cmpt tr.me td{font-weight:700}
+.cmpt .tag{display:inline-block;font-size:10.5px;font-weight:700;color:var(--ochre-ink);background:var(--ochre);border-radius:999px;padding:0 7px;margin-top:2px}
+.cmpt td.r{font-size:16px}
+.cmpnote{margin:6px 0 0;font-size:12.5px;color:var(--ink-2)}
 .essence{font-size:13.5px;margin:0;background:var(--ochre-soft);border-radius:8px;padding:10px 12px}
 
 /* 画面下の結果バー */
@@ -209,21 +224,37 @@ ul.plain.small{font-size:12.5px;color:var(--ink-2)}
     <h2 id="rhead">結果</h2>
     <div class="verdict" id="verdict"></div>
     <p class="sub num" id="sub"></p>
+    <p class="assume" id="assume"></p>
     <div class="card chartcard">
       <div class="charthead"><h2>資産の動き</h2>
         <div class="legend"><span style="--c:var(--ochre)">資産の合計</span><span style="--c:var(--blue)">うち現金</span><span class="crash">暴落中（最高値から20%以上の下落）</span></div></div>
       <svg class="chart" id="chart" viewBox="0 0 640 360" role="img" aria-label="年齢ごとの資産の動き"></svg>
+      <p class="endwhy" id="endWhy"></p>
       <p class="note">グラフに指やマウスを当てると、その年齢の金額が出ます。</p>
     </div>
   </div></section>
+
+  <section class="card a-feat feat" aria-labelledby="fhead">
+    <p class="kicker">この計算の特徴</p>
+    <h2 id="fhead">生活費3年分の現金を持って取り崩す</h2>
+    <p class="ftext">よくある取り崩しの試算は、全部を株で持って、毎月同じ額を売る前提です。暴落が来ても、値下がりした株を売り続けることになります。</p>
+    <p class="ftext">この計算は、退職する時に<b>生活費の3年分を現金</b>にしておきます。暴落中は<b>現金から生活費を払う</b>ので、値下がりした株を売らずに待てます。株価が過去最高値の近くまで戻ったら、現金を3年分に戻します。記事④で現金の年数を変えて比べた時、3年分がいちばん多く残りました。</p>
+    <div class="cmp" aria-live="polite">
+      <p class="cmphead">あなたの数字で比べると</p>
+      <table class="cmpt"><thead><tr><th></th><th class="r" id="cmpAgeH">残高</th><th class="r">暴落中に<br>株を売った月</th></tr></thead>
+        <tbody><tr class="me"><td>現金3年分を持つ<br><span class="tag">この計算</span></td><td class="r" id="c1a"></td><td class="r" id="c1b"></td></tr>
+        <tr><td>全部を株で持つ</td><td class="r" id="c0a"></td><td class="r" id="c0b"></td></tr></tbody></table>
+      <p class="cmpnote" id="cmpNote"></p>
+    </div>
+  </section>
 
   <section class="card a-guide premise" aria-labelledby="phead">
     <h2 id="phead">この計算の前提</h2>
     <dl class="plist">
       <div><dt>積み立て中</dt><dd>退職するまでは、毎月の積み立てが<b>年5%</b>で増えるとします。一般的なインデックス投資なら、本質的には年4〜5%くらいで考えるのが目安です。</dd></div>
-      <div><dt>退職したら</dt><dd>生活費の<b>3年分を現金</b>にして、残りは株（S&amp;P500）で持ちます。記事④で、3年分がいちばん多く残った持ち方です。</dd></div>
+      <div><dt>退職したら</dt><dd>生活費の<b>3年分を現金</b>にして、残りは株（S&amp;P500）で持ちます（上の「この計算の特徴」）。</dd></div>
       <div><dt>使い方</dt><dd>生活費は毎月<b>まず現金から</b>払い、現金が足りない時だけ株を売ります。現金を3年分に戻すのは、株価が過去最高値の近くまで戻った時だけです。</dd></div>
-      <div><dt>退職後の相場</dt><dd>2000年3月からの<b>S&amp;P500（配当込み）の実際の値動き</b>をあてはめます。退職してすぐITバブル崩壊、その8年後にリーマンショックが来る、厳しい順番です。</dd></div>
+      <div><dt>退職後の相場</dt><dd>2000年3月からの<b>S&amp;P500（配当込み）の実際の値動き</b>をあてはめます。決まった%で増える計算ではありません。<span id="pRet"></span>退職してすぐITバブル崩壊、その8年後にリーマンショックが来る、厳しい順番です。</dd></div>
       <div><dt>「暴落」とは</dt><dd>株価（配当込み）が<b>過去最高値から20%以上</b>下がっている状態です。この順番では、ITバブル崩壊（最大−45%）、リーマンショック（最大−51%）、2022年の下落（最大−24%）の3回が来ます。グラフの赤い帯がその時期です。</dd></div>
       <div><dt>計算できる年齢</dt><dd id="pAge">データは2026年8月までなので、計算できるのは取り崩しを始めてから26年5か月分です。</dd></div>
       <div><dt>入れていないもの</dt><dd>税金・手数料・為替（円とドル）・物価の上昇・年金・退職後の収入。過去のデータでの試算で、将来を約束するものではありません。特定の金融商品をすすめるものでもありません。</dd></div>
@@ -376,13 +407,32 @@ if (typeof module !== "undefined") { module.exports = {simulate, validate, half,
 
   function render(r){
     const good = r.deadAge===null;
-    const msg = r.noMoney ? `退職時の資産が0円なので、取り崩せません` : good ? `${ans.start}歳から毎月${ans.draw}万円を取り崩しても、${r.lastAge}歳まで尽きませんでした`
+    const msg = r.noMoney ? `退職時の資産が0円なので、取り崩せません` : good ? `${ans.start}歳から毎月${ans.draw}万円を取り崩しても、データのある${r.lastAge}歳まで尽きませんでした`
                      : `${ans.start}歳から毎月${ans.draw}万円を取り崩して、${r.deadAge}歳で尽きました`;
     $("verdict").className = "verdict "+(good?"good":"bad");
     $("verdict").innerHTML = `<span class="mark">${good?"✓":"✗"}</span>`+msg;
     $("dockText").textContent = (good?"✓ ":"✗ ")+(r.noMoney?"資産が0円です":good?`${r.lastAge}歳まで尽きない`:`${r.deadAge}歳で尽きる`)+`（退職時 ${fmt(r.fv)}万円）`;
     $("dockText").className = "t "+(good?"good":"bad");
     $("sub").innerHTML = r.noMoney ? "" : `退職時の資産（見込み）<b>${fmt(r.fv)}万円</b> → ${r.deadAge!==null ? `${r.deadAge}歳で0円` : `${r.lastAge}歳の時 <b>${fmt(r.final)}万円</b>`}`;
+    const sIdx=D.ym.indexOf("2000年3月"), cg=(a,b,arr)=>{let p=1; for(let i=a+1;i<=b;i++) p*=1+arr[i]; return (Math.pow(p,12/(b-a))-1)*100;};
+    const all=cg(sIdx,N-1,D.rs), first=cg(sIdx,sIdx+120,D.rs), rest=cg(sIdx+120,N-1,D.rs), cashR=cg(sIdx,N-1,D.rc), f1=v=>v.toFixed(1).replace("-","−");
+    $("pRet").textContent = `この${Math.floor((N-1-sIdx)/12)}年${(N-1-sIdx)%12}か月をならすと年${f1(all)}%（ドル建て）ですが、最初の10年は年${f1(first)}%、そのあとは年${f1(rest)}%でした。現金（米国3か月国債）は年${f1(cashR)}%です。`;
+    $("assume").textContent = `前提：積み立て中は年5%／退職後は2000年3月からの実際の値動き（ならすと年${f1(all)}%、ただし最初の10年は年${f1(first)}%）`;
+    { const r0 = simulate(Object.assign({}, ans, {cash:0}));
+      const both = !r.noMoney && r.deadAge===null && r0.deadAge===null;
+      const bal = x => x.noMoney ? "—" : (x.deadAge!==null ? `${x.deadAge}歳で尽きる` : (both ? `${fmt(x.final)}万円` : `${x.lastAge}歳まで持つ`));
+      $("cmpAgeH").textContent = both ? `${r.lastAge}歳の時の残高` : "何歳まで持つか";
+      $("c1a").textContent = bal(r); $("c1b").textContent = r.noMoney?"—":`${r.sold}か月`;
+      $("c0a").textContent = bal(r0); $("c0b").textContent = r0.noMoney?"—":`${r0.sold}か月`;
+      let note = "";
+      if(!r.noMoney){
+        if(r.deadAge===null && r0.deadAge===null){ const d=Math.round(r.final-r0.final); note = d>=0 ? `現金を持つ方が${fmt(d)}万円多く残りました。暴落中に安値で株を売った月が${r0.sold-r.sold}か月少ないためです。` : `この数字では、全部を株で持つ方が${fmt(-d)}万円多く残りました。現金にした分は、株価が上がっても増えないためです。`; }
+        else if(r.deadAge===null && r0.deadAge!==null) note = `全部を株で持つと${r0.deadAge}歳で尽きますが、現金を持つと${r.lastAge}歳まで持ちました。`;
+        else if(r.deadAge!==null && r0.deadAge===null) note = `この数字では、全部を株で持つ方が長く持ちました。`;
+        else note = r.deadAge>r0.deadAge ? `現金を持つと、尽きるのが${r.deadAge-r0.deadAge}年遅くなりました。` : (r.deadAge===r0.deadAge ? `どちらも${r.deadAge}歳で尽きます。` : `この数字では、全部を株で持つ方が長く持ちました。`);
+      }
+      $("cmpNote").textContent = note; }
+    $("endWhy").textContent = `グラフが${r.lastAge}歳で終わる理由：実際の値動きのデータが、2000年3月から${D.ym[N-1]}までの${Math.floor(r.months/12)}年${r.months%12}か月分しかないためです。${ans.start}歳＋${Math.floor(r.months/12)}年${r.months%12}か月で、${r.lastAge}歳までになります。`;
     $("pAge").textContent = `データは${D.ym[N-1]}までなので、計算できるのは取り崩しを始めてから${Math.floor(r.months/12)}年${r.months%12}か月分（${r.lastAge}歳まで）です。それより先は「データがない」ので、結果には出ません。`;
     drawChart(r);
   }
