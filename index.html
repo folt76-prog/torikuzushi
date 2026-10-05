@@ -46,13 +46,13 @@ html,body{max-width:100%;overflow-x:clip}
 [hidden]{display:none!important}
 body{background:var(--ground);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.7;-webkit-text-size-adjust:100%}
 .wrap{max-width:1160px;margin:0 auto;padding-inline:16px;padding-block:20px 120px;display:grid;gap:24px;
-  grid-template-columns:minmax(0,1fr);grid-template-areas:"head" "qs" "sum" "detail" "guide" "try" "mech" "foot"}
+  grid-template-columns:minmax(0,1fr);grid-template-areas:"head" "qs" "sum" "guide" "try" "foot"}
 .a-head{grid-area:head}.a-qs{grid-area:qs}.a-sum{grid-area:sum}.a-detail{grid-area:detail}.a-guide{grid-area:guide}.a-try{grid-area:try}.a-mech{grid-area:mech}.a-foot{grid-area:foot}
 .a-sum>.inner{display:grid;gap:14px}
 .a-detail{display:grid;gap:14px;align-items:start}
 @media (min-width:960px){
   .wrap{grid-template-columns:minmax(360px,420px) minmax(0,1fr);column-gap:36px;row-gap:28px;padding-block:32px 56px;
-    grid-template-areas:"head head" "qs sum" "guide sum" "detail detail" "try mech" "foot foot"}
+    grid-template-areas:"head head" "qs sum" "guide sum" "try try" "foot foot"}
   .a-sum>.inner{position:sticky;top:calc(16px + env(safe-area-inset-top,0px))}
   .a-detail{grid-template-columns:1fr 1fr}
   .dock{display:none}
@@ -131,6 +131,16 @@ tr.retire td{background:var(--ochre-soft);font-weight:700}
 tr.nodata td{color:var(--ink-3)}
 ul.plain{margin:0;padding-left:1.2em;display:grid;gap:6px;font-size:14px}
 ul.plain.small{font-size:12.5px;color:var(--ink-2)}
+.sub{margin:-4px 0 0;font-size:14px;color:var(--ink-2)}
+.sub b{color:var(--ink);font-size:16px}
+.premise{border-color:color-mix(in srgb,var(--ochre) 45%,var(--line))}
+.plist{margin:0;display:grid;gap:10px}
+.plist div{display:grid;grid-template-columns:6.5em minmax(0,1fr);gap:10px;align-items:baseline}
+.plist dt{font-weight:700;font-size:13px;color:var(--ochre)}
+.plist dd{margin:0;font-size:13.5px;line-height:1.7}
+.plist b{background:linear-gradient(transparent 60%,var(--field) 60%);font-weight:700}
+@media (max-width:380px){.plist div{grid-template-columns:minmax(0,1fr);gap:2px}}
+.more{background:transparent;border-style:dashed}
 .essence{font-size:13.5px;margin:0;background:var(--ochre-soft);border-radius:8px;padding:10px 12px}
 
 /* 画面下の結果バー */
@@ -152,15 +162,15 @@ ul.plain.small{font-size:12.5px;color:var(--ink-2)}
   <header class="a-head"><div>
     <p class="kicker">取り崩しシリーズ・無料版</p>
     <h1>私の場合、何歳まで持つか</h1>
-    <p class="lead">8つの質問に数字で答えるだけ。答えを変えると、下の結果がその場で変わります。</p>
+    <p class="lead">5つの質問に数字で答えると、お金が尽きるかどうかと、資産の動きがグラフで出ます。答えを変えると、その場で変わります。</p>
     </div>
-    <p class="example" id="exampleNote">最初は例の数字（43歳・投資800万円・毎月8万円…）が入っています。自分の数字に書き換えてください。答えはこの端末にだけ残ります。</p>
+    <p class="example" id="exampleNote">最初は例の数字（43歳・投資800万円・毎月8万円・60歳から毎月15万円）が入っています。自分の数字に書き換えてください。入れた数字はこの端末の中だけで計算し、どこにも送りません。</p>
   </header>
 
   <section class="qs a-qs" aria-labelledby="qhead">
     <div>
       <h2 id="qhead">質問</h2>
-      <div class="progress"><span id="progText">8問中 8問に答えています</span></div>
+      <div class="progress"><span id="progText">5問中 5問に答えています</span></div>
       <div class="bar" aria-hidden="true"><i id="progBar"></i></div>
     </div>
 
@@ -176,100 +186,52 @@ ul.plain.small{font-size:12.5px;color:var(--ink-2)}
       <div class="field"><input id="mon" type="text" inputmode="decimal" autocomplete="off" size="4" enterkeyhint="next"><span class="unit">万円</span></div>
       <p class="hint">退職するまで、毎月投資に回す額。ボーナス月の分は12で割って足してください。</p><p class="err" id="mon_err" hidden></p></div>
 
-    <div class="q" role="group" aria-labelledby="what_t"><div class="qt" id="what_t"><span class="no">Q4</span>主に何に投資している？</div>
-      <div class="chips" id="what"></div>
-      <p class="hint">選ぶと、積み立て中の想定利回りが決まります（下の「想定利回りの目安」）。</p></div>
-
-    <div class="q" id="ownBox" hidden><label for="own"><span class="no">Q4-2</span>自分で入れる想定利回りは？</label>
-      <div class="field"><input id="own" type="text" inputmode="decimal" autocomplete="off" size="4" enterkeyhint="next"><span class="unit">%（年）</span></div>
-      <p class="hint">5%なら「5」。迷ったら4〜5で十分です。</p><p class="err" id="own_err" hidden></p></div>
-
-    <div class="q"><label for="start"><span class="no">Q5</span>何歳から取り崩す？</label>
+    <div class="q"><label for="start"><span class="no">Q4</span>何歳から取り崩す？</label>
       <div class="field"><input id="start" type="text" inputmode="numeric" autocomplete="off" size="4" enterkeyhint="next"><span class="unit">歳</span></div>
       <p class="hint">仕事を辞めて、投資したお金を生活費に使い始める年齢です。</p><p class="err" id="start_err" hidden></p></div>
 
-    <div class="q"><label for="draw"><span class="no">Q6</span>取り崩し始めたら、毎月いくら使う？</label>
+    <div class="q"><label for="draw"><span class="no">Q5</span>取り崩し始めたら、毎月いくら使う？</label>
       <div class="field"><input id="draw" type="text" inputmode="decimal" autocomplete="off" size="4" enterkeyhint="next"><span class="unit">万円</span></div>
       <p class="hint">毎月の生活費。年金をもらう人は「生活費−年金」で入れてください。</p><p class="err" id="draw_err" hidden></p></div>
 
-    <div class="q"><label for="cash"><span class="no">Q7</span>現金は生活費の何年分持つ？</label>
-      <div class="field"><input id="cash" type="text" inputmode="decimal" autocomplete="off" size="4" enterkeyhint="next"><span class="unit">年分</span></div>
-      <p class="hint">取り崩しに入るとき、現金にしておく分。0〜10くらい。記事④では3年分がいちばん多く残りました。</p><p class="err" id="cash_err" hidden></p></div>
-
-    <div class="q" role="group" aria-labelledby="scen_t"><div class="qt" id="scen_t"><span class="no">Q8</span>退職後に来る相場は？</div>
-      <div class="chips" id="scen"></div>
-      <p class="hint">「退職したあとに、この時期と同じ値動きが来たら」という意味です。</p></div>
   </section>
 
   <section id="result" class="a-sum" aria-labelledby="rhead"><div class="inner">
     <h2 id="rhead">結果</h2>
     <div class="verdict" id="verdict"></div>
-    <div class="figs">
-      <div class="fig"><span class="k" id="f1k"></span><span class="v num" id="f1"></span></div>
-      <div class="fig"><span class="k" id="f2k"></span><span class="v num" id="f2"></span></div>
-      <div class="fig"><span class="k">暴落中に株を売った月</span><span class="v num" id="f3"></span></div>
-      <div class="fig" id="f4box"><span class="k">取り崩し率（1年に使う額÷退職時の資産）</span><span class="v num" id="f4"></span></div>
-    </div>
+    <p class="sub num" id="sub"></p>
     <div class="card chartcard">
       <div class="charthead"><h2>資産の動き</h2>
-        <div class="legend"><span style="--c:var(--ochre)">資産の合計</span><span style="--c:var(--blue)">うち現金</span><span class="crash">暴落中</span></div></div>
+        <div class="legend"><span style="--c:var(--ochre)">資産の合計</span><span style="--c:var(--blue)">うち現金</span><span class="crash">暴落中（最高値から20%以上の下落）</span></div></div>
       <svg class="chart" id="chart" viewBox="0 0 640 360" role="img" aria-label="年齢ごとの資産の動き"></svg>
-      <p class="note">グラフに指やマウスを当てると、その年齢の金額が出ます。退職までは想定利回りで、退職後は選んだ相場の実際の値動きで計算しています。</p>
+      <p class="note">グラフに指やマウスを当てると、その年齢の金額が出ます。</p>
     </div>
-    <p class="note" id="dataNote"></p>
-    <p class="scen" id="scenDesc"></p>
   </div></section>
 
-  <section id="detail" class="a-detail" aria-label="くわしい結果">
-    <div class="card">
-      <h2>暴落が来た時</h2>
-      <p class="def"><b>「暴落中」</b>＝株価（配当込み）が過去最高値から20%以上下がっていた月のこと。この月に株を売ると、安値で売ることになります。</p>
-      <div class="tablewrap"><table><thead><tr><th>暴落（あなたが何歳の時）</th><th class="r">株を売った月</th><th class="r">下落</th></tr></thead><tbody id="crashBody"></tbody></table></div>
-      <p class="note">1988年以降、月末で−20%を超えたのはこの3回です（2020年3月のコロナ急落は、月末では−20%に届いていません）。</p>
-    </div>
-    <details>
-      <summary>年齢ごとの表を見る</summary>
-      <div class="tablewrap"><table><thead><tr><th>年齢</th><th>時期</th><th class="r">資産の合計</th><th class="r">うち現金</th></tr></thead><tbody id="yearBody"></tbody></table></div>
-    </details>
+  <section class="card a-guide premise" aria-labelledby="phead">
+    <h2 id="phead">この計算の前提</h2>
+    <dl class="plist">
+      <div><dt>積み立て中</dt><dd>退職するまでは、毎月の積み立てが<b>年5%</b>で増えるとします。一般的なインデックス投資なら、本質的には年4〜5%くらいで考えるのが目安です。</dd></div>
+      <div><dt>退職したら</dt><dd>生活費の<b>3年分を現金</b>にして、残りは株（S&amp;P500）で持ちます。記事④で、3年分がいちばん多く残った持ち方です。</dd></div>
+      <div><dt>使い方</dt><dd>生活費は毎月<b>まず現金から</b>払い、現金が足りない時だけ株を売ります。現金を3年分に戻すのは、株価が過去最高値の近くまで戻った時だけです。</dd></div>
+      <div><dt>退職後の相場</dt><dd>2000年3月からの<b>S&amp;P500（配当込み）の実際の値動き</b>をあてはめます。退職してすぐITバブル崩壊、その8年後にリーマンショックが来る、厳しい順番です。</dd></div>
+      <div><dt>「暴落」とは</dt><dd>株価（配当込み）が<b>過去最高値から20%以上</b>下がっている状態です。この順番では、ITバブル崩壊（最大−45%）、リーマンショック（最大−51%）、2022年の下落（最大−24%）の3回が来ます。グラフの赤い帯がその時期です。</dd></div>
+      <div><dt>計算できる年齢</dt><dd id="pAge">データは2026年8月までなので、計算できるのは取り崩しを始めてから26年5か月分です。</dd></div>
+      <div><dt>入れていないもの</dt><dd>税金・手数料・為替（円とドル）・物価の上昇・年金・退職後の収入。過去のデータでの試算で、将来を約束するものではありません。特定の金融商品をすすめるものでもありません。</dd></div>
+    </dl>
   </section>
 
-  <section class="card a-guide" aria-labelledby="ghead">
-    <h2 id="ghead">想定利回りの目安（Q4）</h2>
-    <div class="tablewrap"><table>
-      <thead><tr><th>投資先（期間・配当込み・ドル建て）</th><th class="r">過去の年率</th><th class="r">この計算</th></tr></thead>
-      <tbody>
-        <tr><td>S&amp;P500（1988〜2026年）</td><td class="r">11.5%</td><td class="r">5%</td></tr>
-        <tr><td>オルカン（2008〜2026年）</td><td class="r">8〜9%</td><td class="r">5%</td></tr>
-        <tr><td>先進国株・米国以外（2001〜2026年）</td><td class="r">7.0%</td><td class="r">4.5%</td></tr>
-        <tr><td>バランス型（参考：株6債券4 2008〜2026年）</td><td class="r">8.4%</td><td class="r">3%</td></tr>
-        <tr><td>米国債券（2003〜2026年）</td><td class="r">2.9%</td><td class="r">—</td></tr>
-      </tbody></table></div>
-    <p class="essence">一般的なインデックス投資なら、本質的には「年4〜5%」くらいで考えるのが目安です。過去の数字はドル建てで、たまたま良かった期間も入っています。円で持つと為替で上下し、これからも同じとは限りません。低めに見ておけば、外れても困りません。</p>
-  </section>
-
-  <section class="card a-try" aria-labelledby="thead">
-    <h2 id="thead">試してみよう</h2>
-    <ul class="plain">
-      <li>Q3 の積み立てを月 8 → 10 万円にすると、退職時の資産と何歳まで持つかはどう変わる？</li>
-      <li>Q4 を「S&amp;P500」→「バランス型」にすると、退職時の資産はどれだけ違う？</li>
-      <li>Q5 を 60 → 65 歳にすると？ 5年長く積み立てて、5年短く取り崩します。</li>
-      <li>Q6 を 15 → 20 万円にすると、何歳で尽きる？（記事①：毎月5万円の差）</li>
-      <li>Q7 の現金を 0 → 3 → 6 年分と変えると、暴落中に株を売る月はどう減る？（記事④）</li>
-      <li>Q8 の相場を変えると？ 同じお金でも、来る順番で結果が変わります（記事②）。</li>
-    </ul>
-  </section>
-
-  <section class="card a-mech" aria-labelledby="mhead">
-    <h2 id="mhead">この計算のしくみ</h2>
+  <section class="card a-try more" aria-labelledby="mhead">
+    <h2 id="mhead">もっと細かく試したい人へ</h2>
+    <p class="def">くわしい版（準備中）では、ここで決め打ちにしている前提も変えられるようにします。</p>
     <ul class="plain small">
-      <li>退職するまでは、毎月の積み立てを Q4 で決まる想定利回りで増やします（毎年同じ率で増える前提）。</li>
-      <li>退職後は、Q8 で選んだ時期からの S&amp;P500（配当込み）と米国3か月国債の、実際の月ごとの値動きをあてはめます。Q4 で何を選んでも、退職後は S&amp;P500 の値動きで計算します。</li>
-      <li>退職時に、生活費の Q7 年分を現金にして、残りを株で持ちます。毎月まず現金から払い、足りない分だけ株を売ります。株価が過去最高値の近くまで戻った月だけ、現金を最初の割合まで戻します。</li>
-      <li id="dataRange"></li>
-      <li>税金・手数料・為替（円とドル）・物価の上昇・年金・退職後の収入は入れていません。</li>
-      <li>過去のデータでの計算です。将来を約束するものではありません。特定の金融商品をすすめるものでもありません。間違いに気づいたら、そっと教えてください。</li>
+      <li>投資先と利回り（オルカン・先進国株・バランス型・自分で入れる）</li>
+      <li>現金を何年分持つか</li>
+      <li>退職後に来る相場の順番（4通り）</li>
+      <li>暴落中に株を売った月の数・年齢ごとの表</li>
     </ul>
   </section>
+
   <p class="foot a-foot">データ：S&amp;P500配当込み指数（Yahoo Finance ^SP500TR）、米国3か月国債利回り（FRED DTB3）。月末値から計算。</p>
 </div>
 
@@ -327,15 +289,15 @@ function simulate(a){
           years, crashes, scenDesc: SCEN.find(x=>x[0]===a.scen)};
 }
 const NUM = {age:[18,90,"18〜90の年齢を、整数で入れてください",true], inv:[0,1e6,"0以上の数字を入れてください",false], mon:[0,1e6,"0以上の数字を入れてください",false],
-             own:[0,15,"0〜15の数字を入れてください（5%なら5）",false], start:[18,90,"今の年齢以上、90以下の整数を入れてください",true],
-             draw:[0.1,1000,"0.1〜1000の数字を入れてください",false], cash:[0,30,"0〜30の数字を入れてください",false]};
+             start:[18,90,"今の年齢以上、90以下の整数を入れてください",true], draw:[0.1,1000,"0.1〜1000の数字を入れてください",false]};
+const FIXED = {what:"S&P500", own:5, cash:3, scen:"2000年から"};   // 無料版で決め打ちにしている前提
 // 全角数字・全角ピリオド・全角マイナス・桁区切り・空白を、半角の数字にそろえる
 const half = s => String(s==null?"":s).replace(/[０-９．]/g, c => String.fromCharCode(c.charCodeAt(0)-0xFEE0))
                       .replace(/[－−ー]/g,"-").replace(/[,，、\s　]/g,"");
 // raw: 入力欄の文字列 {age:"43",...}、what/scen: 選択肢。戻り値: {ok, ans, errors, filled}
 function validate(raw, what, scen){
   const ans = {what: RATES.some(r=>r[0]===what) ? what : DEF.what, scen: SCEN.some(x=>x[0]===scen) ? scen : DEF.scen};
-  const errors = {}; let filled = 2;              // Q4とQ8は常にどれかが選ばれている
+  const errors = {}; let filled = 0;
   Object.keys(NUM).forEach(k=>{
     if(k==="own" && ans.what!=="自分で入れる") return;
     const t = half(raw[k]), [lo,hi,msg,intOnly] = NUM[k];
@@ -346,7 +308,7 @@ function validate(raw, what, scen){
     if(bad){ errors[k] = msg; return; }
     ans[k] = v; if(k!=="own") filled++;
   });
-  if(ans.what!=="自分で入れる") ans.own = DEF.own;
+  Object.assign(ans, FIXED);
   return {ok: Object.keys(errors).length===0, ans, errors, filled};
 }
 if (typeof module !== "undefined") { module.exports = {simulate, validate, half, D}; }
@@ -357,7 +319,7 @@ if (typeof module !== "undefined") { module.exports = {simulate, validate, half,
   const $ = id => document.getElementById(id);
   const fmt = v => Math.round(v).toLocaleString("ja-JP");
   let ans = Object.assign({}, DEF);
-  try { const saved = JSON.parse(localStorage.getItem("torikuzushi_v1")||"null");
+  try { const saved = JSON.parse(localStorage.getItem("torikuzushi_free_v1")||"null");
         if(saved && typeof saved==="object") Object.keys(DEF).forEach(k=>{ if(saved[k]!==undefined && saved[k]!==null && typeof saved[k]!=="object") ans[k]=saved[k]; }); } catch(e){}
   ans = Object.assign(ans, {what: RATES.some(r=>r[0]===ans.what)?ans.what:DEF.what, scen: SCEN.some(x=>x[0]===ans.scen)?ans.scen:DEF.scen});
 
@@ -371,8 +333,6 @@ if (typeof module !== "undefined") { module.exports = {simulate, validate, half,
       box.appendChild(b);
     });
   }
-  chips("what", RATES, "what", r=>r[2]);
-  chips("scen", SCEN, "scen", s=>s[1]+"〜");
 
   Object.keys(NUM).forEach(k=>{
     const el=$(k); el.value = ans[k];
@@ -380,9 +340,7 @@ if (typeof module !== "undefined") { module.exports = {simulate, validate, half,
   });
 
   function sync(){
-    document.querySelectorAll("#what button").forEach((b,i)=>b.setAttribute("aria-pressed", RATES[i][0]===ans.what));
-    document.querySelectorAll("#scen button").forEach((b,i)=>b.setAttribute("aria-pressed", SCEN[i][0]===ans.scen));
-    $("ownBox").hidden = ans.what !== "自分で入れる";
+    Object.assign(ans, FIXED);
   }
 
   function read(){
@@ -395,35 +353,28 @@ if (typeof module !== "undefined") { module.exports = {simulate, validate, half,
 
   function update(){
     const {ok, filled} = read();
-    $("progText").textContent = "8問中 "+Math.min(8,filled)+"問に答えています";
-    $("progBar").style.width = (Math.min(8,filled)/8*100)+"%";
-    try { localStorage.setItem("torikuzushi_v1", JSON.stringify(ans)); } catch(e){}
+    $("progText").textContent = "5問中 "+Math.min(5,filled)+"問に答えています";
+    $("progBar").style.width = (Math.min(5,filled)/5*100)+"%";
+    try { localStorage.setItem("torikuzushi_free_v1", JSON.stringify(ans)); } catch(e){}
     if(!ok){
       $("dockText").textContent="赤い字の質問を直すと、結果が出ます"; $("dockText").className="t";
       $("verdict").className="verdict wait"; $("verdict").textContent="赤い字の質問を直すと、結果が出ます（下の数字は直す前のものです）";
-      $("result").classList.add("stale"); $("detail").classList.add("stale"); return;
+      $("result").classList.add("stale"); return;
     }
-    $("result").classList.remove("stale"); $("detail").classList.remove("stale");
+    $("result").classList.remove("stale");
     render(simulate(ans));
   }
 
   function render(r){
     const good = r.deadAge===null;
-    const msg = r.noMoney ? `退職時の資産が0円なので、取り崩せません` : good ? `${ans.start}歳から毎月${ans.draw}万円を取り崩して、${r.lastAge}歳まで一度も尽きませんでした`
+    const msg = r.noMoney ? `退職時の資産が0円なので、取り崩せません` : good ? `${ans.start}歳から毎月${ans.draw}万円を取り崩しても、${r.lastAge}歳まで尽きませんでした`
                      : `${ans.start}歳から毎月${ans.draw}万円を取り崩して、${r.deadAge}歳で尽きました`;
     $("verdict").className = "verdict "+(good?"good":"bad");
     $("verdict").innerHTML = `<span class="mark">${good?"✓":"✗"}</span>`+msg;
     $("dockText").textContent = (good?"✓ ":"✗ ")+(r.noMoney?"資産が0円です":good?`${r.lastAge}歳まで尽きない`:`${r.deadAge}歳で尽きる`)+`（退職時 ${fmt(r.fv)}万円）`;
     $("dockText").className = "t "+(good?"good":"bad");
-    $("f1k").textContent = ans.start+"歳の時の資産（見込み）"; $("f1").innerHTML = fmt(r.fv)+"<small>万円</small>";
-    $("f2k").textContent = r.lastAge+"歳の時の残高"; $("f2").innerHTML = fmt(r.final)+"<small>万円</small>";
-    $("f3").innerHTML = r.sold+"<small>か月</small>";
-    $("f4").textContent = (r.drawRate*100).toFixed(1)+"%";
-    $("f4box").classList.toggle("warn", r.drawRate>0.04);
-    $("dataNote").textContent = `取り崩し率が4%を超えると赤になります。積み立て中の想定利回りは年${(r.rate*100).toFixed(1)}%。この相場のデータは${Math.floor(r.months/12)}年${r.months%12}か月分（${r.lastAge}歳まで）です。`;
-    $("scenDesc").textContent = `${r.scenDesc[1]}から：${r.scenDesc[2]}`;
-    $("crashBody").innerHTML = r.crashes.map(c=>`<tr><td><b>${c.name}</b><br><span class="sub">${c.when}</span></td><td class="r">${c.months}か月</td><td class="r minus">${c.mx}</td></tr>`).join("");
-    $("yearBody").innerHTML = r.years.map(y=>`<tr class="${y.phase==="退職"?"retire":(y.dead?"nodata":"")}"><td class="num">${y.age}歳</td><td>${y.dead?"尽きた":y.phase}</td><td class="r">${fmt(y.total)}</td><td class="r">${fmt(y.cash)}</td></tr>`).join("");
+    $("sub").innerHTML = r.noMoney ? "" : `退職時の資産（見込み）<b>${fmt(r.fv)}万円</b> → ${r.deadAge!==null ? `${r.deadAge}歳で0円` : `${r.lastAge}歳の時 <b>${fmt(r.final)}万円</b>`}`;
+    $("pAge").textContent = `データは${D.ym[N-1]}までなので、計算できるのは取り崩しを始めてから${Math.floor(r.months/12)}年${r.months%12}か月分（${r.lastAge}歳まで）です。それより先は「データがない」ので、結果には出ません。`;
     drawChart(r);
   }
 
@@ -493,7 +444,6 @@ if (typeof module !== "undefined") { module.exports = {simulate, validate, half,
   $("chart").addEventListener("pointerdown", hover);
   $("chart").addEventListener("pointerleave", ()=>{ const h=$("hov"); if(h) h.style.display="none"; });
 
-  $("dataRange").textContent = `データは${D.ym[0]}〜${D.ym[N-1]}まで。何歳まで試算できるかは Q8 の相場で変わります。`;
   sync(); update();
 })();
 </script>
