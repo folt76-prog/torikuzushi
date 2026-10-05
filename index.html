@@ -116,9 +116,18 @@ td .sub{font-size:12px;color:var(--ink-2)}
 
 .chart{width:100%;height:auto;display:block;font-family:var(--body);touch-action:pan-y;cursor:crosshair}
 .chartcard{padding:14px 14px 10px}
+@media (max-width:600px){
+  .chartcard{margin-inline:-16px;border-radius:0;border-left:0;border-right:0;padding:16px 6px 12px}
+  .chartcard .charthead,.chartcard .note{padding-inline:10px}
+  .chartcard h2{font-size:20px}
+  .legend{font-size:13.5px;gap:12px}
+}
 .charthead{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap}
 .chart .tip-bg{fill:var(--surface);stroke:var(--line)}
 .chart .lab{font-size:11px;fill:var(--ink-3)}
+.chart.n .lab{font-size:13px}
+.chart.n .crashlab{font-size:12.5px}
+.chart.n .endlab{font-size:15px}
 .chart .crashlab{font-size:10.5px;font-weight:700;fill:var(--bad)}
 .legend{display:flex;gap:16px;font-size:12.5px;color:var(--ink-2);flex-wrap:wrap}
 .legend span::before{content:"";display:inline-block;width:14px;height:3px;border-radius:2px;margin-right:6px;vertical-align:middle;background:var(--c)}
@@ -383,7 +392,8 @@ if (typeof module !== "undefined") { module.exports = {simulate, validate, half,
   const SHORT = {"ITバブル崩壊":"ITバブル","リーマンショック":"リーマン","2022年の下落":"2022年"};
   let CH = null;   // いま描いているグラフの情報（なぞった時に使う）
   function drawChart(r){
-    const svg=$("chart"), narrow=(svg.clientWidth||640)<520, W=narrow?400:640, H=narrow?300:360, L=narrow?46:58, R=narrow?12:18, T=30, B=38;
+    const svg=$("chart"), narrow=(svg.clientWidth||640)<520, W=narrow?360:640, H=narrow?430:360, L=narrow?44:58, R=narrow?10:18, T=narrow?34:30, B=narrow?36:38;
+    svg.classList.toggle("n", narrow);
     svg.setAttribute("viewBox",`0 0 ${W} ${H}`);
     const ys=r.years; if(!ys.length){svg.innerHTML="";CH=null;return;}
     const pl = ys.concat(r.endAge>ys[ys.length-1].age+1e-9 ? [{age:r.endAge,total:r.final,cash:r.endCash}] : []);
@@ -398,10 +408,17 @@ if (typeof module !== "undefined") { module.exports = {simulate, validate, half,
     if(ans.start>a0){ g+=`<rect x="${L}" y="${T}" width="${xs0-L}" height="${base-T}" style="fill:var(--ochre-soft);opacity:.45"/>`;
       if(xs0-L>64) g+=`<text class="lab" x="${xs0-6}" y="${T+14}" text-anchor="end">← 積み立て</text>`; }
     if(W-R-xs0>64) g+=`<text class="lab" x="${xs0+6}" y="${T+14}">取り崩し →</text>`;
-    // 暴落の帯と名前
+    // 暴落の帯と名前（名前は重ならないよう2段に分け、右端からはみ出さないようにする）
+    const fs = narrow?12.5:10.5, tw = t=>[...t].reduce((a,c)=>a+(/[0-9A-Za-z]/.test(c)?0.62:1),0)*fs;
+    const rowsEnd=[-1e9,-1e9];
     r.crashes.forEach(c=>{ const f=Math.max(c.ageFrom,ans.start), t=Math.min(c.ageTo,a1);
-      if(t>f){ g+=`<rect x="${x(f)}" y="${T}" width="${Math.max(2,x(t)-x(f))}" height="${base-T}" style="fill:var(--crash)"/>`;
-               g+=`<text class="crashlab" x="${x(f)+2}" y="${T-8}">${SHORT[c.name]||c.name}</text>`; } });
+      if(!(t>f)) return;
+      g+=`<rect x="${x(f)}" y="${T}" width="${Math.max(2,x(t)-x(f))}" height="${base-T}" style="fill:var(--crash)"/>`;
+      const name=SHORT[c.name]||c.name, w=tw(name); let lx=Math.min(x(f)+1, W-R-w-1);
+      let row = lx > rowsEnd[0]+4 ? 0 : (lx > rowsEnd[1]+4 ? 1 : -1);
+      if(row<0) return;
+      rowsEnd[row]=lx+w;
+      g+=`<text class="crashlab" x="${lx}" y="${row===0 ? T-6 : T-6-fs-3}">${name}</text>`; });
     // 目盛り
     for(let v=0; v<=top+1e-9; v+=step){ g+=`<line x1="${L}" x2="${W-R}" y1="${y(v)}" y2="${y(v)}" style="stroke:var(--line)" stroke-width="1" ${v?'stroke-dasharray="2 4"':''}/><text class="lab" x="${L-8}" y="${y(v)+4}" text-anchor="end">${man(v)}</text>`; }
     g+=`<text class="lab" x="${L-8}" y="${T-14}" text-anchor="end">万円</text>`;
@@ -418,7 +435,7 @@ if (typeof module !== "undefined") { module.exports = {simulate, validate, half,
       const yr=ys.find(p=>p.age===ans.start); if(yr) g+=`<circle cx="${xs}" cy="${y(yr.total)}" r="4.5" style="fill:var(--surface);stroke:var(--ochre)" stroke-width="2.5"/>`; }
     // 終わりの印
     if(r.deadAge!==null && !r.noMoney){ const xd=x(Math.min(r.deadAge,a1)); g+=`<circle cx="${xd}" cy="${base}" r="5" style="fill:var(--bad)"/><text x="${Math.min(xd+8,W-R-4)}" y="${base-10}" font-size="12" font-weight="700" style="fill:var(--bad)" text-anchor="${xd>W-120?"end":"start"}">${r.deadAge}歳で尽きる</text>`; }
-    else { const e=pl[pl.length-1], xe=x(e.age), ye=y(e.total); g+=`<circle cx="${xe}" cy="${ye}" r="5" style="fill:var(--ochre)"/><text x="${xe-8}" y="${Math.max(T+12,ye-10)}" font-size="12.5" font-weight="700" text-anchor="end" style="fill:var(--ink)">${man(e.total)}万円</text>`; }
+    else { const e=pl[pl.length-1], xe=x(e.age), ye=y(e.total); g+=`<circle cx="${xe}" cy="${ye}" r="5" style="fill:var(--ochre)"/><text x="${xe-8}" y="${Math.max(T+12,ye-10)}" class="endlab" font-size="12.5" font-weight="700" text-anchor="end" style="fill:var(--ink)">${man(e.total)}万円</text>`; }
     // なぞった時の表示
     g+=`<g id="hov" style="display:none;pointer-events:none"><line id="hvl" y1="${T}" y2="${base}" style="stroke:var(--ink-3)" stroke-width="1"/>
         <circle id="hvt" r="5" style="fill:var(--ochre);stroke:var(--surface)" stroke-width="2"/><circle id="hvc" r="4" style="fill:var(--blue);stroke:var(--surface)" stroke-width="2"/>
