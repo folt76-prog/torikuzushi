@@ -156,6 +156,10 @@ ul.plain.small{font-size:12.5px;color:var(--ink-2)}
 .feat .kicker{margin:0}
 .ftext{margin:0;font-size:14px;line-height:1.8}
 .ftext b{background:linear-gradient(transparent 60%,var(--field) 60%)}
+.rules{margin-top:4px;border:1px solid color-mix(in srgb,var(--ochre) 35%,var(--line));border-radius:10px;padding:10px 12px}
+.rlist{margin:0;padding-left:1.4em;display:grid;gap:6px;font-size:13.5px;line-height:1.7}
+.rlist b{color:var(--ink)}
+.rlist li::marker{color:var(--ochre);font-weight:700}
 .cmp{margin-top:6px;background:var(--ochre-soft);border-radius:10px;padding:10px 12px}
 .cmphead{margin:0 0 4px;font-weight:700;font-size:13px;color:var(--ochre)}
 .cmpt{font-size:14px}
@@ -238,7 +242,18 @@ ul.plain.small{font-size:12.5px;color:var(--ink-2)}
     <p class="kicker">この計算の特徴</p>
     <h2 id="fhead">生活費3年分の現金を持って取り崩す</h2>
     <p class="ftext">よくある取り崩しの試算は、全部を株で持って、毎月同じ額を売る前提です。暴落が来ても、値下がりした株を売り続けることになります。</p>
-    <p class="ftext">この計算は、退職する時に<b>生活費の3年分を現金</b>にしておきます。暴落中は<b>現金から生活費を払う</b>ので、値下がりした株を売らずに待てます。株価が過去最高値の近くまで戻ったら、現金を3年分に戻します。記事④で現金の年数を変えて比べた時、3年分がいちばん多く残りました。</p>
+    <p class="ftext">この計算は、<b>株価が下がっている間は現金から生活費を払う</b>やり方です。値下がりした株を売らずに、株価が戻るのを待ちます。記事④で現金の年数を変えて比べた時、3年分がいちばん多く残りました。</p>
+    <div class="rules">
+      <p class="cmphead">取り崩しのルール（毎月この順に動かします）</p>
+      <ol class="rlist">
+        <li><b>退職した時</b>：生活費の3年分を現金にします<span id="ruleShare"></span>。残りは株（S&amp;P500）で持ちます。</li>
+        <li><b>毎月の生活費</b>：まず現金から払います。</li>
+        <li><b>株価が過去最高値にある月</b>だけ、株を売って現金を補充します。補充するのは、退職した時と同じ割合<span id="ruleShare2"></span>までです。株は高い時にだけ売ることになります。</li>
+        <li><b>株価が最高値より下にある間</b>（暴落中を含む）は、株を売らずに現金で払い続けます。</li>
+        <li><b>現金が尽きたら</b>：足りない分だけ、その月に株を売ります。株価が下がっていても売ります。暴落中にこれが起きた月が、下の表の「暴落中に株を売った月」です。</li>
+        <li><b>株も現金も尽きたら</b>：その年齢で「尽きた」になります。</li>
+      </ol>
+    </div>
     <div class="cmp" aria-live="polite">
       <p class="cmphead">あなたの数字で比べると</p>
       <table class="cmpt"><thead><tr><th></th><th class="r" id="cmpAgeH">残高</th><th class="r">暴落中に<br>株を売った月</th></tr></thead>
@@ -252,8 +267,8 @@ ul.plain.small{font-size:12.5px;color:var(--ink-2)}
     <h2 id="phead">この計算の前提</h2>
     <dl class="plist">
       <div><dt>積み立て中</dt><dd>退職するまでは、毎月の積み立てが<b>年5%</b>で増えるとします。一般的なインデックス投資なら、本質的には年4〜5%くらいで考えるのが目安です。</dd></div>
-      <div><dt>退職したら</dt><dd>生活費の<b>3年分を現金</b>にして、残りは株（S&amp;P500）で持ちます（上の「この計算の特徴」）。</dd></div>
-      <div><dt>使い方</dt><dd>生活費は毎月<b>まず現金から</b>払い、現金が足りない時だけ株を売ります。現金を3年分に戻すのは、株価が過去最高値の近くまで戻った時だけです。</dd></div>
+      <div><dt>退職したら</dt><dd>生活費の<b>3年分を現金</b>にして、残りは株（S&amp;P500）で持ちます。</dd></div>
+      <div><dt>使い方</dt><dd>株価が下がっている間は<b>現金から払い</b>、株を売るのは株価が最高値にある月と、現金が尽きた時だけです。くわしくは上の「取り崩しのルール」のとおりです。</dd></div>
       <div><dt>退職後の相場</dt><dd>2000年3月からの<b>S&amp;P500（配当込み）の実際の値動き</b>をあてはめます。決まった%で増える計算ではありません。<span id="pRet"></span>退職してすぐITバブル崩壊、その8年後にリーマンショックが来る、厳しい順番です。</dd></div>
       <div><dt>「暴落」とは</dt><dd>株価（配当込み）が<b>過去最高値から20%以上</b>下がっている状態です。この順番では、ITバブル崩壊（最大−45%）、リーマンショック（最大−51%）、2022年の下落（最大−24%）の3回が来ます。グラフの赤い帯がその時期です。</dd></div>
       <div><dt>計算できる年齢</dt><dd id="pAge">データは2026年8月までなので、計算できるのは取り崩しを始めてから26年5か月分です。</dd></div>
@@ -433,6 +448,9 @@ if (typeof module !== "undefined") { module.exports = {simulate, validate, half,
       }
       $("cmpNote").textContent = note; }
     $("endWhy").textContent = `グラフが${r.lastAge}歳で終わる理由：実際の値動きのデータが、2000年3月から${D.ym[N-1]}までの${Math.floor(r.months/12)}年${r.months%12}か月分しかないためです。${ans.start}歳＋${Math.floor(r.months/12)}年${r.months%12}か月で、${r.lastAge}歳までになります。`;
+    { const share = r.noMoney ? 0 : Math.min(1, ans.draw*12*3/r.fv);
+      const t = r.noMoney ? "" : (share>=1 ? "（この数字では、資産が3年分に届かないので全部が現金になります）" : `（${ans.draw}万円×12か月×3年＝${fmt(ans.draw*36)}万円。退職時の資産の${Math.round(share*100)}%）`);
+      $("ruleShare").textContent = t; $("ruleShare2").textContent = (r.noMoney||share>=1) ? "" : `（資産の${Math.round(share*100)}%）`; }
     $("pAge").textContent = `データは${D.ym[N-1]}までなので、計算できるのは取り崩しを始めてから${Math.floor(r.months/12)}年${r.months%12}か月分（${r.lastAge}歳まで）です。それより先は「データがない」ので、結果には出ません。`;
     drawChart(r);
   }
