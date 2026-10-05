@@ -40,6 +40,9 @@
   --good:#7BD093; --good-bg:#1F3526; --bad:#F2918A; --bad-bg:#3E2422; --crash:rgba(242,145,138,.10);
 }
 *{box-sizing:border-box}
+html,body{max-width:100%;overflow-x:clip}
+.wrap>*{min-width:0}
+.q,.card,.fig,details{min-width:0;overflow-wrap:anywhere}
 [hidden]{display:none!important}
 body{background:var(--ground);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.7;-webkit-text-size-adjust:100%}
 .wrap{max-width:1160px;margin:0 auto;padding-inline:16px;padding-block:20px 120px;display:grid;gap:24px;
@@ -72,15 +75,15 @@ h2{font-size:18px;display:flex;align-items:baseline;gap:8px}
 .q{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px 14px 12px;display:grid;gap:8px}
 .q label,.q .qt{font-weight:700;font-size:16px;display:flex;gap:10px;align-items:baseline}
 .q .no{font-family:var(--display);color:var(--ochre);font-size:14px;min-width:2.4em}
-.field{display:flex;align-items:center;gap:8px}
-.field input{flex:1;min-width:0;font:700 24px/1.2 var(--body);font-variant-numeric:tabular-nums;text-align:right;color:var(--ink);
+.field{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:8px;width:100%}
+.field input{display:block;width:100%;max-width:100%;min-width:0;box-sizing:border-box;-webkit-appearance:none;appearance:none;font:700 24px/1.2 var(--body);font-variant-numeric:tabular-nums;text-align:right;color:var(--ink);
   background:var(--field);border:2px solid var(--field-line);border-radius:10px;padding:10px 12px}
 .field input:focus{outline:3px solid color-mix(in srgb,var(--ochre) 45%,transparent);outline-offset:1px}
 .field .unit{min-width:2.6em;color:var(--ink-2);font-size:14px}
 .hint{font-size:12.5px;color:var(--ink-3);margin:0;line-height:1.6}
 .err{font-size:12.5px;color:var(--bad);margin:0;font-weight:700}
 .chips{display:flex;flex-wrap:wrap;gap:8px}
-.chips button{font:500 14px/1.3 var(--body);color:var(--ink);background:var(--surface);border:1.5px solid var(--line);border-radius:999px;padding:9px 14px;cursor:pointer;text-align:left}
+.chips button{max-width:100%;white-space:normal;font:500 14px/1.3 var(--body);color:var(--ink);background:var(--surface);border:1.5px solid var(--line);border-radius:999px;padding:9px 14px;cursor:pointer;text-align:left}
 .chips button small{display:block;font-size:11px;color:var(--ink-3)}
 .chips button[aria-pressed="true"]{background:var(--field);border-color:var(--field-line);font-weight:700}
 .chips button:focus-visible{outline:3px solid var(--ochre);outline-offset:2px}
@@ -101,11 +104,13 @@ h2{font-size:18px;display:flex;align-items:baseline;gap:8px}
 .scen{font-size:13.5px;color:var(--ink-2);margin:0;padding-left:12px;border-left:3px solid var(--ochre)}
 
 .card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px;display:grid;gap:10px}
-table{border-collapse:collapse;width:100%;font-size:13.5px}
+table{border-collapse:collapse;width:100%;font-size:13.5px;table-layout:auto}
+@media (max-width:480px){table{font-size:12.5px} th,td{padding:7px 4px}}
 th,td{padding:8px 6px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
 th{font-size:12px;color:var(--ink-2);font-weight:700}
 td.r,th.r{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
 td.minus{color:var(--bad)}
+td .sub{font-size:12px;color:var(--ink-2)}
 .def{font-size:13px;margin:0;color:var(--ink-2)}
 .def b{color:var(--bad)}
 
@@ -160,15 +165,15 @@ ul.plain.small{font-size:12.5px;color:var(--ink-2)}
     </div>
 
     <div class="q"><label for="age"><span class="no">Q1</span>今の年齢は？</label>
-      <div class="field"><input id="age" inputmode="numeric" autocomplete="off"><span class="unit">歳</span></div>
+      <div class="field"><input id="age" type="text" inputmode="numeric" autocomplete="off" size="4" enterkeyhint="next"><span class="unit">歳</span></div>
       <p class="hint">今の満年齢。ここから積み立てが始まります。</p><p class="err" id="age_err" hidden></p></div>
 
     <div class="q"><label for="inv"><span class="no">Q2</span>今、投資しているお金は？</label>
-      <div class="field"><input id="inv" inputmode="decimal" autocomplete="off"><span class="unit">万円</span></div>
+      <div class="field"><input id="inv" type="text" inputmode="decimal" autocomplete="off" size="4" enterkeyhint="next"><span class="unit">万円</span></div>
       <p class="hint">NISAなどの評価額の合計。生活防衛資金（生活費の半年〜2年分）は入れません。別に持っている前提です。</p><p class="err" id="inv_err" hidden></p></div>
 
     <div class="q"><label for="mon"><span class="no">Q3</span>毎月いくら積み立てる？</label>
-      <div class="field"><input id="mon" inputmode="decimal" autocomplete="off"><span class="unit">万円</span></div>
+      <div class="field"><input id="mon" type="text" inputmode="decimal" autocomplete="off" size="4" enterkeyhint="next"><span class="unit">万円</span></div>
       <p class="hint">退職するまで、毎月投資に回す額。ボーナス月の分は12で割って足してください。</p><p class="err" id="mon_err" hidden></p></div>
 
     <div class="q" role="group" aria-labelledby="what_t"><div class="qt" id="what_t"><span class="no">Q4</span>主に何に投資している？</div>
@@ -176,19 +181,19 @@ ul.plain.small{font-size:12.5px;color:var(--ink-2)}
       <p class="hint">選ぶと、積み立て中の想定利回りが決まります（下の「想定利回りの目安」）。</p></div>
 
     <div class="q" id="ownBox" hidden><label for="own"><span class="no">Q4-2</span>自分で入れる想定利回りは？</label>
-      <div class="field"><input id="own" inputmode="decimal" autocomplete="off"><span class="unit">%（年）</span></div>
+      <div class="field"><input id="own" type="text" inputmode="decimal" autocomplete="off" size="4" enterkeyhint="next"><span class="unit">%（年）</span></div>
       <p class="hint">5%なら「5」。迷ったら4〜5で十分です。</p><p class="err" id="own_err" hidden></p></div>
 
     <div class="q"><label for="start"><span class="no">Q5</span>何歳から取り崩す？</label>
-      <div class="field"><input id="start" inputmode="numeric" autocomplete="off"><span class="unit">歳</span></div>
+      <div class="field"><input id="start" type="text" inputmode="numeric" autocomplete="off" size="4" enterkeyhint="next"><span class="unit">歳</span></div>
       <p class="hint">仕事を辞めて、投資したお金を生活費に使い始める年齢です。</p><p class="err" id="start_err" hidden></p></div>
 
     <div class="q"><label for="draw"><span class="no">Q6</span>取り崩し始めたら、毎月いくら使う？</label>
-      <div class="field"><input id="draw" inputmode="decimal" autocomplete="off"><span class="unit">万円</span></div>
+      <div class="field"><input id="draw" type="text" inputmode="decimal" autocomplete="off" size="4" enterkeyhint="next"><span class="unit">万円</span></div>
       <p class="hint">毎月の生活費。年金をもらう人は「生活費−年金」で入れてください。</p><p class="err" id="draw_err" hidden></p></div>
 
     <div class="q"><label for="cash"><span class="no">Q7</span>現金は生活費の何年分持つ？</label>
-      <div class="field"><input id="cash" inputmode="decimal" autocomplete="off"><span class="unit">年分</span></div>
+      <div class="field"><input id="cash" type="text" inputmode="decimal" autocomplete="off" size="4" enterkeyhint="next"><span class="unit">年分</span></div>
       <p class="hint">取り崩しに入るとき、現金にしておく分。0〜10くらい。記事④では3年分がいちばん多く残りました。</p><p class="err" id="cash_err" hidden></p></div>
 
     <div class="q" role="group" aria-labelledby="scen_t"><div class="qt" id="scen_t"><span class="no">Q8</span>退職後に来る相場は？</div>
@@ -219,7 +224,7 @@ ul.plain.small{font-size:12.5px;color:var(--ink-2)}
     <div class="card">
       <h2>暴落が来た時</h2>
       <p class="def"><b>「暴落中」</b>＝株価（配当込み）が過去最高値から20%以上下がっていた月のこと。この月に株を売ると、安値で売ることになります。</p>
-      <div class="tablewrap"><table><thead><tr><th>暴落</th><th>あなたが何歳の時</th><th class="r">株を売った月</th><th class="r">下落</th></tr></thead><tbody id="crashBody"></tbody></table></div>
+      <div class="tablewrap"><table><thead><tr><th>暴落（あなたが何歳の時）</th><th class="r">株を売った月</th><th class="r">下落</th></tr></thead><tbody id="crashBody"></tbody></table></div>
       <p class="note">1988年以降、月末で−20%を超えたのはこの3回です（2020年3月のコロナ急落は、月末では−20%に届いていません）。</p>
     </div>
     <details>
@@ -417,7 +422,7 @@ if (typeof module !== "undefined") { module.exports = {simulate, validate, half,
     $("f4box").classList.toggle("warn", r.drawRate>0.04);
     $("dataNote").textContent = `取り崩し率が4%を超えると赤になります。積み立て中の想定利回りは年${(r.rate*100).toFixed(1)}%。この相場のデータは${Math.floor(r.months/12)}年${r.months%12}か月分（${r.lastAge}歳まで）です。`;
     $("scenDesc").textContent = `${r.scenDesc[1]}から：${r.scenDesc[2]}`;
-    $("crashBody").innerHTML = r.crashes.map(c=>`<tr><td>${c.name}</td><td>${c.when}</td><td class="r">${c.months}か月</td><td class="r minus">${c.mx}</td></tr>`).join("");
+    $("crashBody").innerHTML = r.crashes.map(c=>`<tr><td><b>${c.name}</b><br><span class="sub">${c.when}</span></td><td class="r">${c.months}か月</td><td class="r minus">${c.mx}</td></tr>`).join("");
     $("yearBody").innerHTML = r.years.map(y=>`<tr class="${y.phase==="退職"?"retire":(y.dead?"nodata":"")}"><td class="num">${y.age}歳</td><td>${y.dead?"尽きた":y.phase}</td><td class="r">${fmt(y.total)}</td><td class="r">${fmt(y.cash)}</td></tr>`).join("");
     drawChart(r);
   }
