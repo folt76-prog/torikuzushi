@@ -1,0 +1,576 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="5つの質問に数字で答えると、退職後にお金が尽きるかどうかと、資産の動きがグラフで出ます。スマホでもパソコンでも使えます。入力した数字はどこにも送りません。">
+<meta property="og:type" content="website">
+<meta property="og:title" content="退職後のお金、何歳まで持つか">
+<meta property="og:description" content="5つの質問に数字で答えると、退職後にお金が尽きるかどうかと、資産の動きがグラフで出ます。スマホでもパソコンでも使えます。入力した数字はどこにも送りません。">
+<meta property="og:image" content="https://folt76-prog.github.io/torikuzushi/lib/og.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="robots" content="index,follow">
+<style>body{margin:0} :root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)} img{max-width:100%} [hidden]{display:none!important}</style>
+<title>退職後のお金、何歳まで持つか</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@500;700&family=Noto+Sans+JP:wght@400;500;700&display=swap">
+<style>
+:root{
+  --ground:#F2F4F1; --surface:#FFFFFF; --ink:#26261F; --ink-2:#5C5A4E; --ink-3:#8A877A;
+  --line:#DCDDD3; --ochre:#A8742A; --ochre-ink:#FFFFFF; --ochre-soft:#F3E7D2;
+  --field:#FFF1BF; --field-line:#E0A030; --blue:#2E6FB7;
+  --good:#1E7B3A; --good-bg:#E3F4E8; --bad:#B3261E; --bad-bg:#FBE3E0; --crash:rgba(179,38,30,.08);
+  --display:"Zen Maru Gothic","Hiragino Maru Gothic ProN","Hiragino Sans",sans-serif;
+  --body:"Noto Sans JP","Hiragino Sans","Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --ground:#1B1D1A; --surface:#25282A; --ink:#ECEBE4; --ink-2:#BDBAAD; --ink-3:#8E8B80;
+    --line:#3A3D38; --ochre:#D9A24F; --ochre-ink:#1B1D1A; --ochre-soft:#3A3122;
+    --field:#3D3517; --field-line:#C99A3A; --blue:#79A9E8;
+    --good:#7BD093; --good-bg:#1F3526; --bad:#F2918A; --bad-bg:#3E2422; --crash:rgba(242,145,138,.10);
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --ground:#1B1D1A; --surface:#25282A; --ink:#ECEBE4; --ink-2:#BDBAAD; --ink-3:#8E8B80;
+  --line:#3A3D38; --ochre:#D9A24F; --ochre-ink:#1B1D1A; --ochre-soft:#3A3122;
+  --field:#3D3517; --field-line:#C99A3A; --blue:#79A9E8;
+  --good:#7BD093; --good-bg:#1F3526; --bad:#F2918A; --bad-bg:#3E2422; --crash:rgba(242,145,138,.10);
+}
+*{box-sizing:border-box}
+html,body{max-width:100%;overflow-x:clip}
+.wrap>*{min-width:0}
+.q,.card,.fig,details{min-width:0;overflow-wrap:anywhere}
+[hidden]{display:none!important}
+body{background:var(--ground);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.7;-webkit-text-size-adjust:100%}
+.wrap{max-width:1160px;margin:0 auto;padding-inline:16px;padding-block:20px 120px;display:grid;gap:24px;
+  grid-template-columns:minmax(0,1fr);grid-template-areas:"head" "how" "qs" "sum" "feat" "try" "guide" "foot"}
+.a-how{grid-area:how}
+.a-head{grid-area:head}.a-feat{grid-area:feat}.a-qs{grid-area:qs}.a-sum{grid-area:sum}.a-detail{grid-area:detail}.a-guide{grid-area:guide}.a-try{grid-area:try}.a-mech{grid-area:mech}.a-foot{grid-area:foot}
+.a-sum>.inner{display:grid;gap:14px}
+.a-detail{display:grid;gap:14px;align-items:start}
+@media (min-width:960px){
+  .wrap{grid-template-columns:minmax(360px,420px) minmax(0,1fr);column-gap:36px;row-gap:28px;padding-block:32px 56px;
+    grid-template-areas:"head head" "how how" "qs sum" "feat sum" "try sum" "guide guide" "foot foot"}
+  .a-sum>.inner{position:sticky;top:calc(16px + env(safe-area-inset-top,0px))}
+  .a-detail{grid-template-columns:1fr 1fr}
+  .dock{display:none}
+  .a-head{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);column-gap:36px;align-items:end}
+  .a-head .example{margin:0}
+}
+h1,h2{font-family:var(--display);font-weight:700;text-wrap:balance;margin:0;line-height:1.35}
+h1{font-size:clamp(24px,3vw,32px)}
+h2{font-size:18px;display:flex;align-items:baseline;gap:8px}
+.kicker{font-size:12px;letter-spacing:.08em;color:var(--ochre);font-weight:700;margin:0 0 6px}
+.lead{margin:8px 0 0;color:var(--ink-2)}
+.example{margin:10px 0 0;font-size:13px;color:var(--ink-2);background:var(--ochre-soft);border-radius:8px;padding:8px 12px}
+.num{font-variant-numeric:tabular-nums}
+
+/* 質問 */
+.qs{display:grid;gap:12px}
+.progress{font-size:13px;color:var(--ink-2);display:flex;justify-content:space-between;align-items:center}
+.bar{height:6px;border-radius:3px;background:var(--line);overflow:hidden;margin-top:6px}
+.bar i{display:block;height:100%;background:var(--ochre);width:0;transition:width .3s}
+.q{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px 14px 12px;display:grid;gap:8px}
+.q label,.q .qt{font-weight:700;font-size:16px;display:flex;gap:10px;align-items:baseline}
+.q .no{font-family:var(--display);color:var(--ochre);font-size:14px;min-width:2.4em}
+.field{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:8px;width:100%}
+.field input{display:block;width:100%;max-width:100%;min-width:0;box-sizing:border-box;-webkit-appearance:none;appearance:none;font:700 24px/1.2 var(--body);font-variant-numeric:tabular-nums;text-align:right;color:var(--ink);
+  background:var(--field);border:2px solid var(--field-line);border-radius:10px;padding:10px 12px}
+.field input:focus{outline:3px solid color-mix(in srgb,var(--ochre) 45%,transparent);outline-offset:1px}
+.field .unit{min-width:2.6em;color:var(--ink-2);font-size:14px}
+.hint{font-size:12.5px;color:var(--ink-3);margin:0;line-height:1.6}
+.err{font-size:12.5px;color:var(--bad);margin:0;font-weight:700}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chips button{max-width:100%;white-space:normal;font:500 14px/1.3 var(--body);color:var(--ink);background:var(--surface);border:1.5px solid var(--line);border-radius:999px;padding:9px 14px;cursor:pointer;text-align:left}
+.chips button small{display:block;font-size:11px;color:var(--ink-3)}
+.chips button[aria-pressed="true"]{background:var(--field);border-color:var(--field-line);font-weight:700}
+.chips button:focus-visible{outline:3px solid var(--ochre);outline-offset:2px}
+
+/* 結果 */
+.verdict{border-radius:14px;padding:16px 18px;font-family:var(--display);font-weight:700;font-size:20px;line-height:1.5;text-wrap:balance}
+.verdict.good{background:var(--good-bg);color:var(--good)}
+.verdict.bad{background:var(--bad-bg);color:var(--bad)}
+.verdict .mark{font-size:24px;margin-right:4px}
+.figs{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.fig{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 14px;display:grid;gap:2px;align-content:start}
+.fig .k{font-size:12.5px;color:var(--ink-2);line-height:1.5}
+.fig .v{font-size:clamp(20px,2.2vw,26px);font-weight:700;font-variant-numeric:tabular-nums;line-height:1.3}
+.fig .v small{font-size:13px;font-weight:500;margin-left:2px}
+.fig.warn{background:var(--bad-bg);border-color:transparent}
+.fig.warn .v{color:var(--bad)}
+.note{font-size:12.5px;color:var(--ink-3);margin:0}
+.scen{font-size:13.5px;color:var(--ink-2);margin:0;padding-left:12px;border-left:3px solid var(--ochre)}
+
+.card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px;display:grid;gap:10px}
+table{border-collapse:collapse;width:100%;font-size:13.5px;table-layout:auto}
+@media (max-width:480px){table{font-size:12.5px} th,td{padding:7px 4px}}
+th,td{padding:8px 6px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+th{font-size:12px;color:var(--ink-2);font-weight:700}
+td.r,th.r{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+td.minus{color:var(--bad)}
+td .sub{font-size:12px;color:var(--ink-2)}
+.def{font-size:13px;margin:0;color:var(--ink-2)}
+.def b{color:var(--bad)}
+
+.chart{width:100%;height:auto;display:block;font-family:var(--body);touch-action:pan-y;cursor:crosshair}
+.chartcard{padding:14px 14px 10px}
+@media (max-width:600px){
+  .chartcard{margin-inline:-16px;border-radius:0;border-left:0;border-right:0;padding:16px 6px 12px}
+  .chartcard .charthead,.chartcard .note{padding-inline:10px}
+  .chartcard h2{font-size:20px}
+  .legend{font-size:13.5px;gap:12px}
+}
+.charthead{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap}
+.chart .tip-bg{fill:var(--surface);stroke:var(--line)}
+.chart .lab{font-size:11px;fill:var(--ink-3)}
+.chart.n .lab{font-size:13px}
+.chart.n .crashlab{font-size:12.5px}
+.chart.n .endlab{font-size:15px}
+.chart .crashlab{font-size:10.5px;font-weight:700;fill:var(--bad)}
+.legend{display:flex;gap:16px;font-size:12.5px;color:var(--ink-2);flex-wrap:wrap}
+.legend span::before{content:"";display:inline-block;width:14px;height:3px;border-radius:2px;margin-right:6px;vertical-align:middle;background:var(--c)}
+.legend .crash::before{height:10px;background:var(--crash);border:1px solid var(--bad)}
+
+details{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+summary{cursor:pointer;font-weight:700}
+.tablewrap{overflow-x:auto;margin-top:8px}
+tr.retire td{background:var(--ochre-soft);font-weight:700}
+tr.nodata td{color:var(--ink-3)}
+ul.plain{margin:0;padding-left:1.2em;display:grid;gap:6px;font-size:14px}
+ul.plain.small{font-size:12.5px;color:var(--ink-2)}
+.sub{margin:-4px 0 0;font-size:14px;color:var(--ink-2)}
+.sub b{color:var(--ink);font-size:16px}
+.endwhy{margin:0;font-size:13px;line-height:1.7;color:var(--ink);padding:8px 10px;border-left:3px solid var(--ochre);background:var(--ochre-soft);border-radius:0 8px 8px 0}
+.assume{margin:-6px 0 0;font-size:12.5px;color:var(--ink-2);padding:6px 10px;border-radius:8px;background:var(--ochre-soft)}
+.premise{border-color:color-mix(in srgb,var(--ochre) 45%,var(--line))}
+.plist{margin:0;display:grid;gap:10px}
+.plist div{display:grid;grid-template-columns:6.5em minmax(0,1fr);gap:10px;align-items:baseline}
+.plist dt{font-weight:700;font-size:13px;color:var(--ochre)}
+.plist dd{margin:0;font-size:13.5px;line-height:1.7}
+.plist b{background:linear-gradient(transparent 60%,var(--field) 60%);font-weight:700}
+@media (max-width:380px){.plist div{grid-template-columns:minmax(0,1fr);gap:2px}}
+.more{background:transparent;border-style:dashed}
+.feat{border:2px solid var(--ochre);gap:8px}
+.feat .kicker{margin:0}
+.ftext{margin:0;font-size:14px;line-height:1.8}
+.ftext b{background:linear-gradient(transparent 60%,var(--field) 60%)}
+.rules{margin-top:4px;border:1px solid color-mix(in srgb,var(--ochre) 35%,var(--line));border-radius:10px;padding:10px 12px}
+.rlist{margin:0;padding-left:1.4em;display:grid;gap:6px;font-size:13.5px;line-height:1.7}
+.rlist b{color:var(--ink)}
+.rlist li::marker{color:var(--ochre);font-weight:700}
+.cmp{margin-top:6px;background:var(--ochre-soft);border-radius:10px;padding:10px 12px}
+.cmphead{margin:0 0 4px;font-weight:700;font-size:13px;color:var(--ochre)}
+.cmpt{font-size:14px}
+.cmpt th{font-size:11.5px;line-height:1.35;vertical-align:bottom}
+.cmpt td{vertical-align:middle;border-bottom-color:color-mix(in srgb,var(--ochre) 25%,transparent)}
+.cmpt tr.me td{font-weight:700}
+.cmpt .tag{display:inline-block;font-size:10.5px;font-weight:700;color:var(--ochre-ink);background:var(--ochre);border-radius:999px;padding:0 7px;margin-top:2px}
+.cmpt td.r{font-size:16px}
+.cmpnote{margin:6px 0 0;font-size:12.5px;color:var(--ink-2)}
+.essence{font-size:13.5px;margin:0;background:var(--ochre-soft);border-radius:8px;padding:10px 12px}
+
+.how{border:2px solid var(--ochre)}
+.howtabs{display:flex;gap:8px}
+.howtabs button{font:700 14px/1.2 var(--body);color:var(--ink);background:var(--surface);border:1.5px solid var(--line);border-radius:999px;padding:9px 16px;cursor:pointer}
+.howtabs button[aria-selected="true"]{background:var(--field);border-color:var(--field-line)}
+.howtabs button:focus-visible{outline:3px solid var(--ochre);outline-offset:2px}
+.howlist{font-size:14px}
+/* 画面下の結果バー */
+.dock{position:fixed;left:0;right:0;bottom:0;z-index:5;background:var(--surface);border-top:1px solid var(--line);
+  padding:10px 16px calc(10px + env(safe-area-inset-bottom,0px));box-shadow:0 -6px 18px rgba(0,0,0,.08)}
+.dock .in{max-width:560px;margin:0 auto;display:flex;gap:10px;align-items:center;justify-content:space-between}
+.dock .t{font-weight:700;font-size:13.5px;line-height:1.45;min-width:0}
+.dock .t.good{color:var(--good)} .dock .t.bad{color:var(--bad)}
+.dock a{flex:none;font-size:13px;font-weight:700;color:var(--ochre-ink);background:var(--ochre);border-radius:999px;padding:8px 14px;text-decoration:none}
+.foot{font-size:12px;color:var(--ink-3);margin:0}
+#result.stale .figs,#result.stale .card,#result.stale .note,#result.stale .scen,#detail.stale{opacity:.3;filter:grayscale(1)}
+.verdict.wait{background:var(--ochre-soft);color:var(--ink-2)}
+@media (prefers-reduced-motion: reduce){.bar i{transition:none}}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header class="a-head"><div>
+    <p class="kicker">取り崩しシミュレーター・無料</p>
+    <h1>退職後のお金、何歳まで持つか</h1>
+    <p class="lead">5つの質問に数字で答えると、お金が尽きるかどうかと、資産の動きがグラフで出ます。答えを変えると、その場で変わります。</p>
+    </div>
+    <p class="example" id="exampleNote">最初は例の数字（40歳・投資500万円・毎月5万円・60歳から毎月20万円）が入っています。自分の数字に書き換えてください。入れた数字はこの端末の中だけで計算し、どこにも送りません。</p>
+  </header>
+
+  <section class="card a-how how" aria-labelledby="hhead">
+    <h2 id="hhead">使い方</h2>
+    <div class="howtabs" role="tablist" aria-label="使う機械">
+      <button type="button" role="tab" id="tabSp" aria-selected="true" aria-controls="howSp">📱 スマホ</button>
+      <button type="button" role="tab" id="tabPc" aria-selected="false" aria-controls="howPc">💻 パソコン</button>
+    </div>
+    <ol class="rlist howlist" id="howSp" role="tabpanel" aria-labelledby="tabSp">
+      <li>下の<b>Q1〜Q5</b>の黄色い欄をタップして、自分の数字に書き換えます。最初は例の数字が入っています。</li>
+      <li>数字を変えるたびに、<b>画面のいちばん下のバー</b>に結果（何歳まで持つか）が出ます。</li>
+      <li>バーの<b>「結果へ」</b>を押すと、グラフと「現金3年分を持つ／全部を株で持つ」の比べに飛びます。</li>
+      <li>グラフは<b>指でなぞる</b>と、その年齢の金額が出ます。</li>
+    </ol>
+    <ol class="rlist howlist" id="howPc" role="tabpanel" aria-labelledby="tabPc" hidden>
+      <li><b>左側のQ1〜Q5</b>の黄色い欄をクリックして、自分の数字に書き換えます。最初は例の数字が入っています。</li>
+      <li><b>右側</b>に結果とグラフがずっと出ています。数字を変えると、その場で変わります。</li>
+      <li>グラフに<b>マウスを当てる</b>と、その年齢の金額が出ます。</li>
+      <li>下にスクロールすると、「現金3年分を持つ／全部を株で持つ」の比べと、計算の前提があります。</li>
+    </ol>
+    <p class="note">画面の幅が広いと「パソコン」、狭いと「スマホ」の並びに自動で変わります。</p>
+  </section>
+
+  <section class="qs a-qs" aria-labelledby="qhead">
+    <div>
+      <h2 id="qhead">質問</h2>
+      <div class="progress"><span id="progText">5問中 5問に答えています</span></div>
+      <div class="bar" aria-hidden="true"><i id="progBar"></i></div>
+    </div>
+
+    <div class="q"><label for="age"><span class="no">Q1</span>今の年齢は？</label>
+      <div class="field"><input id="age" type="text" inputmode="numeric" autocomplete="off" size="4" enterkeyhint="next"><span class="unit">歳</span></div>
+      <p class="hint">今の満年齢。ここから積み立てが始まります。</p><p class="err" id="age_err" hidden></p></div>
+
+    <div class="q"><label for="inv"><span class="no">Q2</span>今、投資しているお金は？</label>
+      <div class="field"><input id="inv" type="text" inputmode="decimal" autocomplete="off" size="4" enterkeyhint="next"><span class="unit">万円</span></div>
+      <p class="hint">NISAなどの評価額の合計。生活防衛資金（生活費の半年〜2年分）は入れません。別に持っている前提です。</p><p class="err" id="inv_err" hidden></p></div>
+
+    <div class="q"><label for="mon"><span class="no">Q3</span>毎月いくら積み立てる？</label>
+      <div class="field"><input id="mon" type="text" inputmode="decimal" autocomplete="off" size="4" enterkeyhint="next"><span class="unit">万円</span></div>
+      <p class="hint">退職するまで、毎月投資に回す額。ボーナス月の分は12で割って足してください。</p><p class="err" id="mon_err" hidden></p></div>
+
+    <div class="q"><label for="start"><span class="no">Q4</span>何歳から取り崩す？</label>
+      <div class="field"><input id="start" type="text" inputmode="numeric" autocomplete="off" size="4" enterkeyhint="next"><span class="unit">歳</span></div>
+      <p class="hint">仕事を辞めて、投資したお金を生活費に使い始める年齢です。</p><p class="err" id="start_err" hidden></p></div>
+
+    <div class="q"><label for="draw"><span class="no">Q5</span>取り崩し始めたら、毎月いくら使う？</label>
+      <div class="field"><input id="draw" type="text" inputmode="decimal" autocomplete="off" size="4" enterkeyhint="next"><span class="unit">万円</span></div>
+      <p class="hint">毎月の生活費。年金をもらう人は「生活費−年金」で入れてください。</p><p class="err" id="draw_err" hidden></p></div>
+
+  </section>
+
+  <section id="result" class="a-sum" aria-labelledby="rhead"><div class="inner">
+    <h2 id="rhead">結果</h2>
+    <div class="verdict" id="verdict"></div>
+    <p class="sub num" id="sub"></p>
+    <p class="assume" id="assume"></p>
+    <div class="card chartcard">
+      <div class="charthead"><h2>資産の動き</h2>
+        <div class="legend"><span style="--c:var(--ochre)">資産の合計</span><span style="--c:var(--blue)">うち現金</span><span class="crash">暴落中（最高値から20%以上の下落）</span></div></div>
+      <svg class="chart" id="chart" viewBox="0 0 640 360" role="img" aria-label="年齢ごとの資産の動き"></svg>
+      <p class="endwhy" id="endWhy"></p>
+      <p class="note">グラフに指やマウスを当てると、その年齢の金額が出ます。</p>
+    </div>
+  </div></section>
+
+  <section class="card a-feat feat" aria-labelledby="fhead">
+    <p class="kicker">この計算の特徴</p>
+    <h2 id="fhead">生活費3年分の現金を持って取り崩す</h2>
+    <p class="ftext">よくある取り崩しの試算は、全部を株で持って、毎月同じ額を売る前提です。暴落が来ても、値下がりした株を売り続けることになります。</p>
+    <p class="ftext">この計算は、<b>株価が下がっている間は現金から生活費を払う</b>やり方です。値下がりした株を売らずに、株価が戻るのを待ちます。例の数字で、現金を0年分から10年分まで変えて比べたところ、3年分がいちばん多く残りました。</p>
+    <div class="rules">
+      <p class="cmphead">取り崩しのルール（毎月この順に動かします）</p>
+      <ol class="rlist">
+        <li><b>退職した時</b>：生活費の3年分を現金にします<span id="ruleShare"></span>。残りは株（S&amp;P500）で持ちます。</li>
+        <li><b>毎月の生活費</b>：まず現金から払います。</li>
+        <li><b>株価が過去最高値にある月</b>だけ、株を売って現金を補充します。補充するのは、退職した時と同じ割合<span id="ruleShare2"></span>までです。株は高い時にだけ売ることになります。</li>
+        <li><b>株価が最高値より下にある間</b>（暴落中を含む）は、株を売らずに現金で払い続けます。</li>
+        <li><b>現金が尽きたら</b>：足りない分だけ、その月に株を売ります。株価が下がっていても売ります。暴落中にこれが起きた月が、下の表の「暴落中に株を売った月」です。</li>
+        <li><b>株も現金も尽きたら</b>：その年齢で「尽きた」になります。</li>
+      </ol>
+    </div>
+    <div class="cmp" aria-live="polite">
+      <p class="cmphead">あなたの数字で比べると</p>
+      <table class="cmpt"><thead><tr><th></th><th class="r" id="cmpAgeH">残高</th><th class="r">暴落中に<br>株を売った月</th></tr></thead>
+        <tbody><tr class="me"><td>現金3年分を持つ<br><span class="tag">この計算</span></td><td class="r" id="c1a"></td><td class="r" id="c1b"></td></tr>
+        <tr><td>全部を株で持つ</td><td class="r" id="c0a"></td><td class="r" id="c0b"></td></tr></tbody></table>
+      <p class="cmpnote" id="cmpNote"></p>
+    </div>
+  </section>
+
+  <section class="card a-guide premise" aria-labelledby="phead">
+    <h2 id="phead">この計算の前提</h2>
+    <dl class="plist">
+      <div><dt>積み立て中</dt><dd>退職するまでは、毎月の積み立てが<b>年7%</b>で増えるとします。S&amp;P500の過去の年率11.5%（1988〜2026年・配当込み・ドル建て）を、控えめに<b>6割</b>で見た数字です。</dd></div>
+      <div><dt>退職したら</dt><dd>生活費の<b>3年分を現金</b>にして、残りは株（S&amp;P500）で持ちます。</dd></div>
+      <div><dt>使い方</dt><dd>株価が下がっている間は<b>現金から払い</b>、株を売るのは株価が最高値にある月と、現金が尽きた時だけです。くわしくは上の「取り崩しのルール」のとおりです。</dd></div>
+      <div><dt>退職後の相場</dt><dd>2000年3月からの<b>S&amp;P500（配当込み）の実際の値動き</b>をあてはめます。決まった%で増える計算ではありません。<span id="pRet"></span>退職してすぐITバブル崩壊、その8年後にリーマンショックが来る、厳しい順番です。</dd></div>
+      <div><dt>「暴落」とは</dt><dd>株価（配当込み）が<b>過去最高値から20%以上</b>下がっている状態です。この順番では、ITバブル崩壊（最大−45%）、リーマンショック（最大−51%）、2022年の下落（最大−24%）の3回が来ます。グラフの赤い帯がその時期です。</dd></div>
+      <div><dt>計算できる年齢</dt><dd id="pAge">データは2026年8月までなので、計算できるのは取り崩しを始めてから26年5か月分です。</dd></div>
+      <div><dt>入れていないもの</dt><dd>税金・手数料・為替（円とドル）・物価の上昇・年金・退職後の収入。過去のデータでの試算で、将来を約束するものではありません。特定の金融商品をすすめるものでもありません。</dd></div>
+    </dl>
+  </section>
+
+  <section class="card a-try faq" aria-labelledby="mhead">
+    <h2 id="mhead">よくある質問</h2>
+    <dl class="plist">
+      <div><dt>「尽きました」と出た</dt><dd>Q5（毎月使う額）を<b>1万円ずつ下げて</b>みてください。いちばん結果が動くのはここです。Q4（取り崩す年齢）を上げても変わります。</dd></div>
+      <div><dt>毎月の生活費が分からない</dt><dd>去年使ったお金の合計を12で割ると、だいたいの数字になります。</dd></div>
+      <div><dt>年金はどうする？</dt><dd>Q5に<b>「毎月の生活費−年金」</b>を入れてください。</dd></div>
+      <div><dt>夫婦の場合は？</dt><dd>Q2とQ3は2人分を足します。Q5は2人の毎月の生活費を入れます。</dd></div>
+      <div><dt>生活防衛資金は？</dt><dd>Q2には入れません。別に持っている前提で計算しています。</dd></div>
+      <div><dt>グラフが途中で終わる</dt><dd>実際の値動きのデータが2026年8月までしかないためです。その先は「データがない」ので出ません。</dd></div>
+    </dl>
+  </section>
+
+  <p class="foot a-foot">データ：S&amp;P500配当込み指数（Yahoo Finance ^SP500TR）、米国3か月国債利回り（FRED DTB3）。月末値から計算。</p>
+</div>
+
+<div class="dock" aria-live="polite"><div class="in"><span class="t" id="dockText"></span><a href="#result">結果へ</a></div></div>
+
+<script>
+const D = {"ym":["1988年1月","1988年2月","1988年3月","1988年4月","1988年5月","1988年6月","1988年7月","1988年8月","1988年9月","1988年10月","1988年11月","1988年12月","1989年1月","1989年2月","1989年3月","1989年4月","1989年5月","1989年6月","1989年7月","1989年8月","1989年9月","1989年10月","1989年11月","1989年12月","1990年1月","1990年2月","1990年3月","1990年4月","1990年5月","1990年6月","1990年7月","1990年8月","1990年9月","1990年10月","1990年11月","1990年12月","1991年1月","1991年2月","1991年3月","1991年4月","1991年5月","1991年6月","1991年7月","1991年8月","1991年9月","1991年10月","1991年11月","1991年12月","1992年1月","1992年2月","1992年3月","1992年4月","1992年5月","1992年6月","1992年7月","1992年8月","1992年9月","1992年10月","1992年11月","1992年12月","1993年1月","1993年2月","1993年3月","1993年4月","1993年5月","1993年6月","1993年7月","1993年8月","1993年9月","1993年10月","1993年11月","1993年12月","1994年1月","1994年2月","1994年3月","1994年4月","1994年5月","1994年6月","1994年7月","1994年8月","1994年9月","1994年10月","1994年11月","1994年12月","1995年1月","1995年2月","1995年3月","1995年4月","1995年5月","1995年6月","1995年7月","1995年8月","1995年9月","1995年10月","1995年11月","1995年12月","1996年1月","1996年2月","1996年3月","1996年4月","1996年5月","1996年6月","1996年7月","1996年8月","1996年9月","1996年10月","1996年11月","1996年12月","1997年1月","1997年2月","1997年3月","1997年4月","1997年5月","1997年6月","1997年7月","1997年8月","1997年9月","1997年10月","1997年11月","1997年12月","1998年1月","1998年2月","1998年3月","1998年4月","1998年5月","1998年6月","1998年7月","1998年8月","1998年9月","1998年10月","1998年11月","1998年12月","1999年1月","1999年2月","1999年3月","1999年4月","1999年5月","1999年6月","1999年7月","1999年8月","1999年9月","1999年10月","1999年11月","1999年12月","2000年1月","2000年2月","2000年3月","2000年4月","2000年5月","2000年6月","2000年7月","2000年8月","2000年9月","2000年10月","2000年11月","2000年12月","2001年1月","2001年2月","2001年3月","2001年4月","2001年5月","2001年6月","2001年7月","2001年8月","2001年9月","2001年10月","2001年11月","2001年12月","2002年1月","2002年2月","2002年3月","2002年4月","2002年5月","2002年6月","2002年7月","2002年8月","2002年9月","2002年10月","2002年11月","2002年12月","2003年1月","2003年2月","2003年3月","2003年4月","2003年5月","2003年6月","2003年7月","2003年8月","2003年9月","2003年10月","2003年11月","2003年12月","2004年1月","2004年2月","2004年3月","2004年4月","2004年5月","2004年6月","2004年7月","2004年8月","2004年9月","2004年10月","2004年11月","2004年12月","2005年1月","2005年2月","2005年3月","2005年4月","2005年5月","2005年6月","2005年7月","2005年8月","2005年9月","2005年10月","2005年11月","2005年12月","2006年1月","2006年2月","2006年3月","2006年4月","2006年5月","2006年6月","2006年7月","2006年8月","2006年9月","2006年10月","2006年11月","2006年12月","2007年1月","2007年2月","2007年3月","2007年4月","2007年5月","2007年6月","2007年7月","2007年8月","2007年9月","2007年10月","2007年11月","2007年12月","2008年1月","2008年2月","2008年3月","2008年4月","2008年5月","2008年6月","2008年7月","2008年8月","2008年9月","2008年10月","2008年11月","2008年12月","2009年1月","2009年2月","2009年3月","2009年4月","2009年5月","2009年6月","2009年7月","2009年8月","2009年9月","2009年10月","2009年11月","2009年12月","2010年1月","2010年2月","2010年3月","2010年4月","2010年5月","2010年6月","2010年7月","2010年8月","2010年9月","2010年10月","2010年11月","2010年12月","2011年1月","2011年2月","2011年3月","2011年4月","2011年5月","2011年6月","2011年7月","2011年8月","2011年9月","2011年10月","2011年11月","2011年12月","2012年1月","2012年2月","2012年3月","2012年4月","2012年5月","2012年6月","2012年7月","2012年8月","2012年9月","2012年10月","2012年11月","2012年12月","2013年1月","2013年2月","2013年3月","2013年4月","2013年5月","2013年6月","2013年7月","2013年8月","2013年9月","2013年10月","2013年11月","2013年12月","2014年1月","2014年2月","2014年3月","2014年4月","2014年5月","2014年6月","2014年7月","2014年8月","2014年9月","2014年10月","2014年11月","2014年12月","2015年1月","2015年2月","2015年3月","2015年4月","2015年5月","2015年6月","2015年7月","2015年8月","2015年9月","2015年10月","2015年11月","2015年12月","2016年1月","2016年2月","2016年3月","2016年4月","2016年5月","2016年6月","2016年7月","2016年8月","2016年9月","2016年10月","2016年11月","2016年12月","2017年1月","2017年2月","2017年3月","2017年4月","2017年5月","2017年6月","2017年7月","2017年8月","2017年9月","2017年10月","2017年11月","2017年12月","2018年1月","2018年2月","2018年3月","2018年4月","2018年5月","2018年6月","2018年7月","2018年8月","2018年9月","2018年10月","2018年11月","2018年12月","2019年1月","2019年2月","2019年3月","2019年4月","2019年5月","2019年6月","2019年7月","2019年8月","2019年9月","2019年10月","2019年11月","2019年12月","2020年1月","2020年2月","2020年3月","2020年4月","2020年5月","2020年6月","2020年7月","2020年8月","2020年9月","2020年10月","2020年11月","2020年12月","2021年1月","2021年2月","2021年3月","2021年4月","2021年5月","2021年6月","2021年7月","2021年8月","2021年9月","2021年10月","2021年11月","2021年12月","2022年1月","2022年2月","2022年3月","2022年4月","2022年5月","2022年6月","2022年7月","2022年8月","2022年9月","2022年10月","2022年11月","2022年12月","2023年1月","2023年2月","2023年3月","2023年4月","2023年5月","2023年6月","2023年7月","2023年8月","2023年9月","2023年10月","2023年11月","2023年12月","2024年1月","2024年2月","2024年3月","2024年4月","2024年5月","2024年6月","2024年7月","2024年8月","2024年9月","2024年10月","2024年11月","2024年12月","2025年1月","2025年2月","2025年3月","2025年4月","2025年5月","2025年6月","2025年7月","2025年8月","2025年9月","2025年10月","2025年11月","2025年12月","2026年1月","2026年2月","2026年3月","2026年4月","2026年5月","2026年6月","2026年7月","2026年8月"],"rs":[0.0,0.04664625,-0.03091145,0.01106649,0.00863505,0.04588465,-0.00376972,-0.03394711,0.04260075,0.02783641,-0.01423746,0.01744474,0.07319866,-0.02490211,0.02331597,0.05192192,0.04045478,-0.00565609,0.09029724,0.01953017,-0.00404557,-0.02321516,0.02037957,0.02402093,-0.06713055,0.01288353,0.0264993,-0.02494563,0.09748615,-0.00675463,-0.00319579,-0.09038452,-0.04866764,-0.00426806,0.06465248,0.02784687,0.04354925,0.07152531,0.02420456,0.00237513,0.04314857,-0.04581588,0.04661125,0.02367793,-0.0167311,0.01344544,-0.04029167,0.11435608,-0.0186185,0.01293817,-0.01944256,0.02936775,0.00488313,-0.01486766,0.04084715,-0.02046906,0.01175573,0.00345932,0.03404783,0.01227639,0.0083498,0.01364106,0.02109582,-0.02416832,0.02674529,0.00292726,-0.00402714,0.03794796,-0.00766588,0.02069038,-0.00954454,0.01209462,0.03400212,-0.02714803,-0.04359918,0.01282347,0.01641807,-0.02450463,0.03282563,0.04100674,-0.02444808,0.0224557,-0.03641738,0.01484257,0.02593318,0.03895776,0.02951191,0.02944152,0.03997786,0.02322731,0.0331614,0.00251739,0.04220027,-0.00357394,0.04388767,0.01926464,0.03403871,0.00926743,0.00962988,0.01473847,0.02578972,0.00382186,-0.04418531,0.02109231,0.05629447,0.02757605,0.07558241,-0.01980715,0.06247044,0.0078377,-0.0410893,0.05969995,0.06088518,0.04480439,0.07956826,-0.05602306,0.05476149,-0.0333925,0.04628809,0.01717449,0.01106389,0.07212215,0.05121101,0.01006082,-0.01719195,0.04062106,-0.01064841,-0.14457979,0.06406215,0.08134137,0.06061338,0.05762434,0.04181409,-0.03107754,0.04000542,0.03872897,-0.02361747,0.05549747,-0.03122368,-0.00494457,-0.02741557,0.06328177,0.0203267,0.05889566,-0.05024243,-0.01892864,0.09782852,-0.03008568,-0.02051807,0.0246538,-0.01563469,0.06211387,-0.05279338,-0.00422405,-0.07883984,0.00489491,0.03547465,-0.09117768,-0.06335156,0.07770723,0.00670334,-0.02434139,-0.00984063,-0.06260561,-0.08075146,0.01906762,0.07670846,0.00876052,-0.01459561,-0.01928104,0.03760735,-0.06063092,-0.00736392,-0.0712328,-0.07795495,0.00657237,-0.10868595,0.08801932,0.05885838,-0.0587436,-0.02619772,-0.01500648,0.00971307,0.08236863,0.05268256,0.01276119,0.0176306,0.01950046,-0.01062028,0.05657428,0.00879875,0.05244249,0.0183556,0.0138982,-0.01508618,-0.01569905,0.01372108,0.01944979,-0.0331004,0.00404738,0.01082937,0.01527791,0.0404627,0.03402808,-0.02437831,0.02104595,-0.01770582,-0.01896769,0.03182072,0.0014194,0.03718789,-0.00912298,0.00809492,-0.01667088,0.0378224,0.00034966,0.02647866,0.00271418,0.01244864,0.01342396,-0.02877936,0.00135302,0.00617317,0.02379295,0.02576816,0.0325835,0.01902016,0.01402669,0.01512264,-0.01956115,0.01118683,0.04429756,0.0348932,-0.01661234,-0.03100609,0.0149884,0.03740037,0.01590713,-0.04180843,-0.00693701,-0.05998104,-0.03248301,-0.0043195,0.04870187,0.01295362,-0.08430472,-0.00840768,0.01446592,-0.08910566,-0.16795056,-0.07175186,0.01064209,-0.08428882,-0.106478,0.08759801,0.09570914,0.05593161,0.00198531,0.07563353,0.03610345,0.0373177,-0.01857619,0.05998225,0.01931566,-0.03597278,0.0309755,0.06034702,0.01578641,-0.07985057,-0.05234865,0.0700606,-0.04514001,0.08924133,0.03805234,0.00012616,0.06683187,0.02370056,0.03425899,0.00039753,0.02961458,-0.01131952,-0.01666915,-0.02033307,-0.05432409,-0.07029632,0.10929206,-0.0022084,0.01022885,0.04481366,0.04324178,0.03290794,-0.00627399,-0.06010132,0.04120253,0.01388875,0.02252338,0.02584258,-0.01846508,0.00579939,0.00911423,0.051796,0.01357549,0.03750304,0.01926675,0.02339009,-0.01342813,0.05088648,-0.02896132,0.03135828,0.0459673,0.03047391,0.02531763,-0.03457609,0.04574577,0.00840363,0.00739146,0.02347626,0.02065629,-0.01379153,0.04000358,-0.01402016,0.0244248,0.02689409,-0.00251922,-0.03002035,0.05747369,-0.01581564,0.00959459,0.0128586,-0.01935912,0.02095207,-0.06033422,-0.02474358,0.08435457,0.00297314,-0.01577196,-0.04962323,-0.00134911,0.06783732,0.00387796,0.01795724,0.00259225,0.03686796,0.00140485,0.00018688,-0.01824049,0.03703514,0.01976537,0.01896619,0.03970818,0.00116476,0.01027054,0.01407253,0.00624175,0.0205628,0.00306209,0.02062776,0.02333475,0.03066958,0.01111832,0.05725378,-0.03685581,-0.02541402,0.00383711,0.02408224,0.00615445,0.03721476,0.03258399,0.00569207,-0.06834999,0.02037808,-0.09028984,0.08013484,0.03210851,0.01943128,0.04048931,-0.06354803,0.07047671,0.01437311,-0.01584136,0.01871067,0.02165901,0.03629905,0.03018281,-0.00039213,-0.08231873,-0.1235135,0.12819402,0.04762744,0.01988819,0.05638519,0.0718798,-0.03799716,-0.02659268,0.10946366,0.03844857,-0.01009625,0.02757454,0.04379561,0.05336903,0.00698413,0.02334548,0.02375432,0.03040565,-0.04650938,0.0700613,-0.00692876,0.04481642,-0.05174685,-0.02994215,0.03712999,-0.08720158,0.00183395,-0.08254361,0.09220444,-0.04078136,-0.09209949,0.08096129,0.05588473,-0.05761466,0.06283426,-0.02439979,0.03671432,0.01560888,0.00434689,0.06607552,0.0321245,-0.0159211,-0.04767814,-0.02102694,0.09132586,0.04543068,0.01680409,0.05339588,0.03217469,-0.04084506,0.04958518,0.03588177,0.01217247,0.02425636,0.02135705,-0.00906801,0.05870057,-0.02383809,0.02784732,-0.01304764,-0.05634428,-0.00678146,0.06294524,0.05085244,0.02244268,0.02027178,0.03649995,0.02341371,0.00245087,0.00061209,0.01450024,-0.00759986,-0.04979508,0.10492657,0.05263305,-0.00952323,-0.00063493,0.02723308],"rc":[0.0,0.00456686,0.00463817,0.00485175,0.00520662,0.00530888,0.00561498,0.00588881,0.00584974,0.00593567,0.00630192,0.00651165,0.00673639,0.00698374,0.00713029,0.00675187,0.00690652,0.00642626,0.00627858,0.00634857,0.00636411,0.00625524,0.00611508,0.0060839,0.0062319,0.00625524,0.00627858,0.00627081,0.00623968,0.0062319,0.00603712,0.00595909,0.00576373,0.00574026,0.00566981,0.00521449,0.00501753,0.00489914,0.00466192,0.00447963,0.0044955,0.00450343,0.0044955,0.00433672,0.00416174,0.00393057,0.00355467,0.00317722,0.00314502,0.00321745,0.00331393,0.00303225,0.00303225,0.0029274,0.00261214,0.00259595,0.00221449,0.00243382,0.00268499,0.00253113,0.00238513,0.00242571,0.00237701,0.00239325,0.00251492,0.0024906,0.0024906,0.00247438,0.00240136,0.0024906,0.00257975,0.00247438,0.00243382,0.00275778,0.00285475,0.00316917,0.00340227,0.00339425,0.00349054,0.00372282,0.00381077,0.00409803,0.00451929,0.0044955,0.00473315,0.00467776,0.00463025,0.00462232,0.00457479,0.00442408,0.0044082,0.00430493,0.00426518,0.00432877,0.00432877,0.00404224,0.00400238,0.00398642,0.00407412,0.00408209,0.00410599,0.00410599,0.00421745,0.00419358,0.00400238,0.00409803,0.00407412,0.00412989,0.00409006,0.00414582,0.00424132,0.00418562,0.00393057,0.00412192,0.00416174,0.00415378,0.00401832,0.00412989,0.00413785,0.00424927,0.00412192,0.00421745,0.00409006,0.00397047,0.00398642,0.00405021,0.00405021,0.00389066,0.00348252,0.00345845,0.00361076,0.0035707,0.0035707,0.00371482,0.0035707,0.00361877,0.00369882,0.00379479,0.0037708,0.00394653,0.0038667,0.00405021,0.00419358,0.00420949,0.0044955,0.00456686,0.00464609,0.00459856,0.00445583,0.00463817,0.00489125,0.00497019,0.00490704,0.00501753,0.00489125,0.004654,0.00396249,0.00385871,0.00343438,0.00316112,0.00291126,0.0029274,0.00283859,0.00270926,0.00193755,0.00165976,0.00144677,0.00141395,0.00143036,0.00145497,0.00145497,0.00143856,0.00141395,0.00138113,0.00138933,0.00137292,0.00127436,0.0011757,0.00099454,0.00099454,0.00096156,0.00097805,0.00092858,0.00092033,0.00090383,0.00073866,0.00077998,0.0007965,0.00077172,0.00077998,0.00075519,0.00077172,0.00074692,0.00077998,0.00077172,0.0007965,0.00087907,0.00108517,0.0011757,0.00129901,0.00138933,0.00154513,0.00180693,0.00179876,0.00204354,0.00223889,0.00224702,0.00233641,0.00240948,0.00251492,0.00274161,0.00282244,0.00284667,0.00318527,0.00316112,0.0032657,0.0035707,0.00368281,0.00369082,0.00379479,0.0038667,0.00397047,0.00405021,0.00401035,0.00389066,0.00403427,0.0039944,0.00398642,0.00406615,0.00408209,0.0039944,0.00390662,0.00375481,0.00381876,0.00393057,0.00320136,0.00304837,0.00314502,0.00253113,0.00270117,0.00158609,0.00149596,0.00112633,0.00116747,0.00152875,0.00154513,0.00136471,0.00139754,0.00074692,0.00036593,8.33e-06,9.162e-05,0.00019978,0.00021641,0.00017483,0.00011659,0.00011659,0.0001582,0.00014988,0.00012491,0.00011659,4.166e-05,4.999e-05,4.999e-05,6.664e-05,0.00010827,0.00013324,0.00013324,0.00013324,0.00014988,0.00012491,0.00011659,0.00013324,9.995e-05,0.00014156,9.995e-05,0.00012491,0.00012491,7.497e-05,3.333e-05,4.999e-05,2.5e-05,8.33e-05,1.667e-05,1.667e-05,8.33e-06,8.33e-06,1.667e-05,4.999e-05,6.664e-05,5.831e-05,8.33e-05,5.831e-05,7.497e-05,9.162e-05,7.497e-05,8.33e-05,9.162e-05,6.664e-05,4.166e-05,5.831e-05,9.162e-05,5.831e-05,4.166e-05,3.333e-05,3.333e-05,3.333e-05,2.5e-05,1.667e-05,3.333e-05,4.999e-05,5.831e-05,1.667e-05,4.166e-05,4.166e-05,2.5e-05,3.333e-05,3.333e-05,2.5e-05,2.5e-05,1.667e-05,8.33e-06,1.667e-05,3.333e-05,1.667e-05,1.667e-05,2.5e-05,8.33e-06,8.33e-06,8.33e-06,6.664e-05,6.664e-05,-8.33e-06,6.664e-05,0.00018315,0.00013324,0.00026628,0.00027458,0.00017483,0.00018315,0.00028289,0.00021641,0.00022472,0.00027458,0.00023303,0.00028289,0.00039912,0.00041571,0.0004323,0.0004406,0.00062286,0.00065596,0.0007965,0.0008378,0.00087082,0.00082128,0.00086256,0.00093682,0.00103575,0.00113456,0.00119215,0.00134829,0.00140575,0.00152055,0.00156152,0.00156152,0.0016434,0.00170885,0.00177425,0.00188859,0.00191308,0.00197833,0.00194571,0.00197833,0.00193755,0.00196202,0.00189675,0.00171703,0.00168431,0.00161065,0.00152055,0.00124971,0.0012908,0.00125793,0.00125793,0.00103575,9.162e-05,7.497e-05,0.00011659,0.00013324,7.497e-05,9.162e-05,8.33e-05,7.497e-05,6.664e-05,7.497e-05,4.999e-05,3.333e-05,2.5e-05,8.33e-06,8.33e-06,4.166e-05,4.999e-05,3.333e-05,3.333e-05,4.166e-05,4.166e-05,4.999e-05,0.00019978,0.00030781,0.00042401,0.00068905,0.00093682,0.00137292,0.00192939,0.00236077,0.00264453,0.00332196,0.00349054,0.00351459,0.00373882,0.00385072,0.00381876,0.00403427,0.00428108,0.00420949,0.00429698,0.00432877,0.00432877,0.00433672,0.00427313,0.00423336,0.00424927,0.00427313,0.00425722,0.00427313,0.00427313,0.00424927,0.00419358,0.00405818,0.00369082,0.00362677,0.00358673,0.00345845,0.00343438,0.00343438,0.0034424,0.00343438,0.0034745,0.00346647,0.00346647,0.00331393,0.00316112,0.00305643,0.00305643,0.0029274,0.00293547,0.00294354,0.00295968,0.00294354,0.00295161,0.00306448,0.00302419,0.00309671],"dd":[0.0,0.0,0.030911,0.020187,0.011726,0.0,0.00377,0.037589,0.0,0.0,0.014237,0.0,0.0,0.024902,0.002167,0.0,0.0,0.005656,0.0,0.0,0.004046,0.027167,0.007341,0.0,0.067131,0.055112,0.030073,0.054268,0.0,0.006755,0.009929,0.099416,0.143245,0.146902,0.091747,0.066455,0.0258,0.0,0.0,0.0,0.0,0.045816,0.00134,0.0,0.016731,0.003511,0.043661,0.0,0.018619,0.005921,0.025249,0.0,0.0,0.014868,0.0,0.020469,0.008954,0.005526,0.0,0.0,0.0,0.0,0.0,0.024168,0.0,0.0,0.004027,0.0,0.007666,0.0,0.009545,0.0,0.0,0.027148,0.069564,0.057632,0.04216,0.065632,0.034961,0.0,0.024448,0.002541,0.038866,0.024601,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.003574,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.044185,0.024025,0.0,0.0,0.0,0.019807,0.0,0.0,0.041089,0.0,0.0,0.0,0.0,0.056023,0.004329,0.037577,0.0,0.0,0.0,0.0,0.0,0.0,0.017192,0.0,0.010648,0.153689,0.099472,0.026222,0.0,0.0,0.0,0.031078,0.0,0.0,0.023617,0.0,0.031224,0.036014,0.062442,0.003112,0.0,0.0,0.050242,0.06822,0.0,0.030086,0.049986,0.026565,0.041784,0.0,0.052793,0.056794,0.131157,0.126904,0.095931,0.178362,0.230414,0.170611,0.165052,0.185376,0.193392,0.24389,0.304947,0.291694,0.237361,0.23068,0.241909,0.256526,0.228565,0.275338,0.280675,0.331914,0.383995,0.379946,0.447337,0.398692,0.3633,0.400702,0.416403,0.42516,0.419577,0.371768,0.338671,0.330232,0.318424,0.305132,0.312512,0.273618,0.267227,0.228798,0.214642,0.203727,0.21574,0.228052,0.21746,0.20224,0.228646,0.225524,0.217137,0.205177,0.173016,0.144875,0.165722,0.148164,0.163246,0.179117,0.152996,0.151794,0.120251,0.128277,0.12122,0.13587,0.103187,0.102873,0.079119,0.076619,0.065124,0.052575,0.079841,0.078596,0.072908,0.05085,0.026392,0.0,0.0,0.0,0.0,0.019561,0.008593,0.0,0.0,0.016612,0.047103,0.032821,0.0,0.0,0.041808,0.048455,0.10553,0.134585,0.138323,0.096358,0.084653,0.161821,0.168868,0.156845,0.231975,0.360965,0.406817,0.400504,0.451035,0.509488,0.46652,0.415461,0.382767,0.381541,0.334765,0.310748,0.285026,0.298308,0.256219,0.241852,0.269125,0.246486,0.201013,0.1884,0.253207,0.292301,0.242719,0.276902,0.212372,0.182401,0.182298,0.127649,0.106974,0.07638,0.076013,0.048649,0.059418,0.075097,0.093903,0.143126,0.203361,0.116295,0.118246,0.109227,0.069308,0.029063,0.0,0.006274,0.065998,0.027515,0.014008,0.0,0.0,0.018465,0.012773,0.003775,0.0,0.0,0.0,0.0,0.0,0.013428,0.0,0.028961,0.0,0.0,0.0,0.0,0.034576,0.0,0.0,0.0,0.0,0.0,0.013792,0.0,0.01402,0.0,0.0,0.002519,0.032464,0.0,0.015816,0.006373,0.0,0.019359,0.0,0.060334,0.083585,0.006281,0.003327,0.019046,0.067724,0.068982,0.005824,0.001969,0.0,0.0,0.0,0.0,0.0,0.01824,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.036856,0.061333,0.057731,0.035039,0.029101,0.0,0.0,0.0,0.06835,0.049365,0.135197,0.065897,0.035904,0.01717,0.0,0.063548,0.0,0.0,0.015841,0.0,0.0,0.0,0.0,0.000392,0.082679,0.19598,0.09291,0.049707,0.030808,0.0,0.0,0.037997,0.063579,0.0,0.0,0.010096,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.046509,0.0,0.006929,0.0,0.051747,0.08014,0.045985,0.129177,0.12758,0.199592,0.125791,0.161443,0.238673,0.177035,0.131044,0.181109,0.129654,0.150891,0.119716,0.105976,0.10209,0.04276,0.012009,0.027739,0.074095,0.093564,0.010782,0.0,0.0,0.0,0.0,0.040845,0.0,0.0,0.0,0.0,0.0,0.009068,0.0,0.023838,0.0,0.013048,0.068657,0.074973,0.016747,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0076,0.057017,0.0,0.0,0.009523,0.010152,0.0]};
+const N = D.ym.length;
+const RATES = [["S&P500",0.07,"想定 7%"],["オルカン",0.05,"想定 5%"],["先進国株",0.04,"想定 4%"],["バランス型",0.035,"株と債券が半々・想定 3.5%"],["自分で入れる",null,"Q4-2で入力"]];
+const SCEN = [["2000年から","2000年3月","退職してすぐITバブル崩壊。その8年後にリーマンショック"],
+              ["1995年から","1995年1月","最初の5年は好調。そのあとITバブル崩壊とリーマンショック"],
+              ["1988年から","1988年1月","最初の12年は上げ相場。そのあと暴落が2回"],
+              ["2009年から","2009年3月","リーマンショックの底から。その後は長い上げ相場"]];
+const CRASH = [["ITバブル崩壊","2001年3月","2004年10月","−45%"],["リーマンショック","2008年9月","2011年9月","−51%"],["2022年の下落","2022年9月","2022年9月","−24%"]];
+const DEF = {age:40,inv:500,mon:5,what:"S&P500",own:5,start:60,draw:20,cash:3,scen:"2000年から"};
+const idx = ym => D.ym.indexOf(ym) + 1;   // 1始まりのデータ行
+
+function simulate(a){
+  const rate = a.what === "自分で入れる" ? a.own/100 : RATES.find(r=>r[0]===a.what)[1];
+  const n = Math.max(0,(a.start-a.age)*12), mr = Math.pow(1+rate,1/12)-1;
+  const accum = m => m<=0 ? a.inv : (mr===0 ? a.inv+a.mon*m : a.inv*Math.pow(1+mr,m)+a.mon*(Math.pow(1+mr,m)-1)/mr);
+  const fv = accum(n)*10000;
+  const noMoney = !(fv > 0.5);
+  const w = fv<=0 ? 0 : Math.max(0,Math.min(1,1-a.draw*12*a.cash*10000/fv));
+  const s = idx(SCEN.find(x=>x[0]===a.scen)[1]);
+  const months = N - s, d = a.draw*10000;
+  let S = fv*w, T = fv*(1-w), prev = S+T, dead = null;
+  const U=[S+T], C=[T], sold=[0], row=[s];
+  for(let k=1;k<=months;k++){
+    const i = s+k-1;
+    const G = S*(1+D.rs[i]), H = T*(1+D.rc[i]), I = G+H;
+    const J = Math.max(0,Math.min(d,I)), K = Math.min(H,J), L = J-K;
+    sold.push(L>1 && D.dd[i]>=0.2 ? 1 : 0);
+    const Nn = G-L, O = H-K, Q = (Nn+O)*(1-w);
+    const R = (D.dd[i]<=0.001 && O<Q && Nn+O>0.5) ? Math.min(Nn,Q-O) : 0;
+    if(Nn+O<=0.5){S=0;T=0;} else {S=Nn-R;T=O+R;}
+    const u=S+T; if(dead===null && u<=0.5 && prev>0.5) dead=k; prev=u;
+    U.push(u); C.push(T); row.push(s+k);
+  }
+  const lastAge = a.start + Math.floor(months/12);
+  const years = [];
+  for(let y=a.age; y<=lastAge; y++){
+    if(y<a.start){ years.push({age:y, phase:"積み立て", total:accum((y-a.age)*12), cash:0}); }
+    else { const q=(y-a.start)*12; years.push({age:y, phase: q===0?"退職":"取り崩し", total:U[q]/10000, cash:C[q]/10000, dead: U[q]<=0.5}); }
+  }
+  const crashes = CRASH.map(([name,a0,a1,mx])=>{
+    const ia=idx(a0), ib=idx(a1);
+    const when = s<ia ? (a.start+Math.floor((ia-s)/12))+"歳の時" : (s<=ib ? "始めた時にすでに暴落中" : "この相場では来ない");
+    let m=0; for(let k=0;k<row.length;k++) if(row[k]>=ia && row[k]<=ib) m+=sold[k];
+    return {name, when, months:m, mx, ageFrom: a.start+(ia-s)/12, ageTo: a.start+(ib-s+1)/12};
+  });
+  const endAge = a.start + months/12, endCash = C[months]/10000;
+  return {noMoney, endAge, endCash, rate, fv:fv/10000, months, lastAge, final:U[months]/10000, sold:sold.reduce((x,y)=>x+y,0),
+          deadAge: noMoney ? a.start : (dead===null ? null : a.start+Math.floor(dead/12)), drawRate: fv>0 ? a.draw*12*10000/fv : 0,
+          years, crashes, scenDesc: SCEN.find(x=>x[0]===a.scen)};
+}
+const NUM = {age:[18,90,"18〜90の年齢を、整数で入れてください",true], inv:[0,1e6,"0以上の数字を入れてください",false], mon:[0,1e6,"0以上の数字を入れてください",false],
+             start:[18,90,"今の年齢以上、90以下の整数を入れてください",true], draw:[0.1,1000,"0.1〜1000の数字を入れてください",false]};
+const FIXED = {what:"S&P500", own:5, cash:3, scen:"2000年から"};   // 無料版で決め打ちにしている前提
+// 全角数字・全角ピリオド・全角マイナス・桁区切り・空白を、半角の数字にそろえる
+const half = s => String(s==null?"":s).replace(/[０-９．]/g, c => String.fromCharCode(c.charCodeAt(0)-0xFEE0))
+                      .replace(/[－−ー]/g,"-").replace(/[,，、\s　]/g,"");
+// raw: 入力欄の文字列 {age:"43",...}、what/scen: 選択肢。戻り値: {ok, ans, errors, filled}
+function validate(raw, what, scen){
+  const ans = {what: RATES.some(r=>r[0]===what) ? what : DEF.what, scen: SCEN.some(x=>x[0]===scen) ? scen : DEF.scen};
+  const errors = {}; let filled = 0;
+  Object.keys(NUM).forEach(k=>{
+    if(k==="own" && ans.what!=="自分で入れる") return;
+    const t = half(raw[k]), [lo,hi,msg,intOnly] = NUM[k];
+    const v = /^-?(\d+\.?\d*|\.\d+)$/.test(t) ? Number(t) : NaN;
+    let bad = !isFinite(v) || v<lo || v>hi || (intOnly && !Number.isInteger(v));
+    if(k==="start" && !bad && isFinite(ans.age) && v < ans.age) bad = true;
+    if(t===""){ errors[k] = "数字を入れてください"; return; }
+    if(bad){ errors[k] = msg; return; }
+    ans[k] = v; if(k!=="own") filled++;
+  });
+  Object.assign(ans, FIXED);
+  return {ok: Object.keys(errors).length===0, ans, errors, filled};
+}
+if (typeof module !== "undefined") { module.exports = {simulate, validate, half, D}; }
+</script>
+<script>
+(function(){
+  if (typeof document === "undefined") return;
+  const $ = id => document.getElementById(id);
+  const fmt = v => Math.round(v).toLocaleString("ja-JP");
+  let ans = Object.assign({}, DEF);
+  try { const saved = JSON.parse(localStorage.getItem("torikuzushi_free_v1")||"null");
+        if(saved && typeof saved==="object") Object.keys(DEF).forEach(k=>{ if(saved[k]!==undefined && saved[k]!==null && typeof saved[k]!=="object") ans[k]=saved[k]; }); } catch(e){}
+  ans = Object.assign(ans, {what: RATES.some(r=>r[0]===ans.what)?ans.what:DEF.what, scen: SCEN.some(x=>x[0]===ans.scen)?ans.scen:DEF.scen});
+
+
+  function chips(boxId, list, key, sub){
+    const box = $(boxId);
+    list.forEach(item=>{
+      const b = document.createElement("button"); b.type="button"; b.id = boxId+"_"+list.indexOf(item);
+      b.innerHTML = item[0] + (sub(item) ? "<small>"+sub(item)+"</small>" : "");
+      b.addEventListener("click", ()=>{ ans[key]=item[0]; sync(); update(); });
+      box.appendChild(b);
+    });
+  }
+
+  Object.keys(NUM).forEach(k=>{
+    const el=$(k); el.value = ans[k];
+    el.addEventListener("input", ()=>update());
+  });
+
+  function sync(){
+    Object.assign(ans, FIXED);
+  }
+
+  function read(){
+    const raw = {}; Object.keys(NUM).forEach(k=>raw[k]=$(k).value);
+    const v = validate(raw, ans.what, ans.scen);
+    Object.keys(NUM).forEach(k=>{ const e=$(k+"_err"); e.textContent = v.errors[k]||""; e.hidden = !v.errors[k]; });
+    if(v.ok) ans = v.ans; else { ans.what = v.ans.what; ans.scen = v.ans.scen; }
+    return {ok: v.ok, filled: v.filled};
+  }
+
+  function update(){
+    const {ok, filled} = read();
+    $("progText").textContent = "5問中 "+Math.min(5,filled)+"問に答えています";
+    $("progBar").style.width = (Math.min(5,filled)/5*100)+"%";
+    try { localStorage.setItem("torikuzushi_free_v1", JSON.stringify(ans)); } catch(e){}
+    if(!ok){
+      $("dockText").textContent="赤い字の質問を直すと、結果が出ます"; $("dockText").className="t";
+      $("verdict").className="verdict wait"; $("verdict").textContent="赤い字の質問を直すと、結果が出ます（下の数字は直す前のものです）";
+      $("result").classList.add("stale"); return;
+    }
+    $("result").classList.remove("stale");
+    render(simulate(ans));
+  }
+
+  function render(r){
+    const good = r.deadAge===null;
+    const msg = r.noMoney ? `退職時の資産が0円なので、取り崩せません` : good ? `${ans.start}歳から毎月${ans.draw}万円を取り崩しても、データのある${r.lastAge}歳まで尽きませんでした`
+                     : `${ans.start}歳から毎月${ans.draw}万円を取り崩して、${r.deadAge}歳で尽きました`;
+    $("verdict").className = "verdict "+(good?"good":"bad");
+    $("verdict").innerHTML = `<span class="mark">${good?"✓":"✗"}</span>`+msg;
+    $("dockText").textContent = (good?"✓ ":"✗ ")+(r.noMoney?"資産が0円です":good?`${r.lastAge}歳まで尽きない`:`${r.deadAge}歳で尽きる`)+`（退職時 ${fmt(r.fv)}万円）`;
+    $("dockText").className = "t "+(good?"good":"bad");
+    $("sub").innerHTML = r.noMoney ? "" : `退職時の資産（見込み）<b>${fmt(r.fv)}万円</b> → ${r.deadAge!==null ? `${r.deadAge}歳で0円` : `${r.lastAge}歳の時 <b>${fmt(r.final)}万円</b>`}`;
+    const sIdx=D.ym.indexOf("2000年3月"), cg=(a,b,arr)=>{let p=1; for(let i=a+1;i<=b;i++) p*=1+arr[i]; return (Math.pow(p,12/(b-a))-1)*100;};
+    const all=cg(sIdx,N-1,D.rs), first=cg(sIdx,sIdx+120,D.rs), rest=cg(sIdx+120,N-1,D.rs), cashR=cg(sIdx,N-1,D.rc), f1=v=>v.toFixed(1).replace("-","−");
+    $("pRet").textContent = `この${Math.floor((N-1-sIdx)/12)}年${(N-1-sIdx)%12}か月をならすと年${f1(all)}%（ドル建て）ですが、最初の10年は年${f1(first)}%、そのあとは年${f1(rest)}%でした。現金（米国3か月国債）は年${f1(cashR)}%です。`;
+    $("assume").textContent = `前提：積み立て中は年7%（過去の6割）／退職後は2000年3月からの実際の値動き（ならすと年${f1(all)}%、ただし最初の10年は年${f1(first)}%）`;
+    { const r0 = simulate(Object.assign({}, ans, {cash:0}));
+      const both = !r.noMoney && r.deadAge===null && r0.deadAge===null;
+      const bal = x => x.noMoney ? "—" : (x.deadAge!==null ? `${x.deadAge}歳で尽きる` : (both ? `${fmt(x.final)}万円` : `${x.lastAge}歳まで持つ`));
+      $("cmpAgeH").textContent = both ? `${r.lastAge}歳の時の残高` : "何歳まで持つか";
+      $("c1a").textContent = bal(r); $("c1b").textContent = r.noMoney?"—":`${r.sold}か月`;
+      $("c0a").textContent = bal(r0); $("c0b").textContent = r0.noMoney?"—":`${r0.sold}か月`;
+      let note = "";
+      if(!r.noMoney){
+        if(r.deadAge===null && r0.deadAge===null){ const d=Math.round(r.final-r0.final); note = d>=0 ? `現金を持つ方が${fmt(d)}万円多く残りました。暴落中に安値で株を売った月が${r0.sold-r.sold}か月少ないためです。` : `この数字では、全部を株で持つ方が${fmt(-d)}万円多く残りました。現金にした分は、株価が上がっても増えないためです。`; }
+        else if(r.deadAge===null && r0.deadAge!==null) note = `全部を株で持つと${r0.deadAge}歳で尽きますが、現金を持つと${r.lastAge}歳まで持ちました。`;
+        else if(r.deadAge!==null && r0.deadAge===null) note = `この数字では、全部を株で持つ方が長く持ちました。`;
+        else note = r.deadAge>r0.deadAge ? `現金を持つと、尽きるのが${r.deadAge-r0.deadAge}年遅くなりました。` : (r.deadAge===r0.deadAge ? `どちらも${r.deadAge}歳で尽きます。` : `この数字では、全部を株で持つ方が長く持ちました。`);
+      }
+      $("cmpNote").textContent = note; }
+    $("endWhy").textContent = `グラフが${r.lastAge}歳で終わる理由：実際の値動きのデータが、2000年3月から${D.ym[N-1]}までの${Math.floor(r.months/12)}年${r.months%12}か月分しかないためです。${ans.start}歳＋${Math.floor(r.months/12)}年${r.months%12}か月で、${r.lastAge}歳までになります。`;
+    { const share = r.noMoney ? 0 : Math.min(1, ans.draw*12*3/r.fv);
+      const t = r.noMoney ? "" : (share>=1 ? "（この数字では、資産が3年分に届かないので全部が現金になります）" : `（${ans.draw}万円×12か月×3年＝${fmt(ans.draw*36)}万円。退職時の資産の${Math.round(share*100)}%）`);
+      $("ruleShare").textContent = t; $("ruleShare2").textContent = (r.noMoney||share>=1) ? "" : `（資産の${Math.round(share*100)}%）`; }
+    $("pAge").textContent = `データは${D.ym[N-1]}までなので、計算できるのは取り崩しを始めてから${Math.floor(r.months/12)}年${r.months%12}か月分（${r.lastAge}歳まで）です。それより先は「データがない」ので、結果には出ません。`;
+    drawChart(r);
+  }
+
+  function niceStep(max){ const raw=max/4, p=Math.pow(10,Math.floor(Math.log10(raw))); const n=raw/p; return (n<=1?1:n<=2?2:n<=5?5:10)*p; }
+  const man = v => v>=10000 ? (Math.round(v/1000)/10).toLocaleString("ja-JP")+"億" : Math.round(v).toLocaleString("ja-JP");
+  const SHORT = {"ITバブル崩壊":"ITバブル","リーマンショック":"リーマン","2022年の下落":"2022年"};
+  let CH = null;   // いま描いているグラフの情報（なぞった時に使う）
+  function drawChart(r){
+    const svg=$("chart"), narrow=(svg.clientWidth||640)<520, W=narrow?360:640, H=narrow?430:360, L=narrow?44:58, R=narrow?10:18, T=narrow?34:30, B=narrow?36:38;
+    svg.classList.toggle("n", narrow);
+    svg.setAttribute("viewBox",`0 0 ${W} ${H}`);
+    const ys=r.years; if(!ys.length){svg.innerHTML="";CH=null;return;}
+    const pl = ys.concat(r.endAge>ys[ys.length-1].age+1e-9 ? [{age:r.endAge,total:r.final,cash:r.endCash}] : []);
+    const a0=ys[0].age, a1=pl[pl.length-1].age, span=Math.max(1,a1-a0);
+    const maxV=Math.max(1,...pl.map(y=>y.total)); const step=niceStep(maxV); const top=Math.ceil(maxV/step)*step;
+    const x=a=>L+(a-a0)/span*(W-L-R), y=v=>T+(1-v/top)*(H-T-B), base=y(0);
+    let g=`<defs>
+      <linearGradient id="gTot" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:var(--ochre);stop-opacity:.34"/><stop offset="1" style="stop-color:var(--ochre);stop-opacity:.03"/></linearGradient>
+      <linearGradient id="gCash" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:var(--blue);stop-opacity:.30"/><stop offset="1" style="stop-color:var(--blue);stop-opacity:.06"/></linearGradient></defs>`;
+    // 積み立て期間はうっすら色を変え、退職の線の左右に「積み立て」「取り崩し」
+    const xs0=x(ans.start);
+    if(ans.start>a0){ g+=`<rect x="${L}" y="${T}" width="${xs0-L}" height="${base-T}" style="fill:var(--ochre-soft);opacity:.45"/>`;
+      if(xs0-L>64) g+=`<text class="lab" x="${xs0-6}" y="${T+14}" text-anchor="end">← 積み立て</text>`; }
+    if(W-R-xs0>64) g+=`<text class="lab" x="${xs0+6}" y="${T+14}">取り崩し →</text>`;
+    // 暴落の帯と名前（名前は重ならないよう2段に分け、右端からはみ出さないようにする）
+    const fs = narrow?12.5:10.5, tw = t=>[...t].reduce((a,c)=>a+(/[0-9A-Za-z]/.test(c)?0.62:1),0)*fs;
+    const rowsEnd=[-1e9,-1e9];
+    r.crashes.forEach(c=>{ const f=Math.max(c.ageFrom,ans.start), t=Math.min(c.ageTo,a1);
+      if(!(t>f)) return;
+      g+=`<rect x="${x(f)}" y="${T}" width="${Math.max(2,x(t)-x(f))}" height="${base-T}" style="fill:var(--crash)"/>`;
+      const name=SHORT[c.name]||c.name, w=tw(name); let lx=Math.min(x(f)+1, W-R-w-1);
+      let row = lx > rowsEnd[0]+4 ? 0 : (lx > rowsEnd[1]+4 ? 1 : -1);
+      if(row<0) return;
+      rowsEnd[row]=lx+w;
+      g+=`<text class="crashlab" x="${lx}" y="${row===0 ? T-6 : T-6-fs-3}">${name}</text>`; });
+    // 目盛り
+    for(let v=0; v<=top+1e-9; v+=step){ g+=`<line x1="${L}" x2="${W-R}" y1="${y(v)}" y2="${y(v)}" style="stroke:var(--line)" stroke-width="1" ${v?'stroke-dasharray="2 4"':''}/><text class="lab" x="${L-8}" y="${y(v)+4}" text-anchor="end">${man(v)}</text>`; }
+    g+=`<text class="lab" x="${L-8}" y="${T-14}" text-anchor="end">万円</text>`;
+    const tick = span>40?10:5;
+    for(let a=Math.ceil(a0/tick)*tick; a<=a1; a+=tick) g+=`<text class="lab" x="${x(a)}" y="${H-14}" text-anchor="middle">${a}歳</text>`;
+    // 面と線
+    const pts=k=>pl.map(p=>x(p.age).toFixed(1)+" "+y(p[k]).toFixed(1));
+    const line=k=>"M"+pts(k).join(" L"), area=k=>line(k)+` L${x(a1).toFixed(1)} ${base} L${x(a0).toFixed(1)} ${base} Z`;
+    g+=`<path d="${area("total")}" fill="url(#gTot)"/><path d="${area("cash")}" fill="url(#gCash)"/>`;
+    g+=`<path d="${line("cash")}" fill="none" style="stroke:var(--blue)" stroke-width="2" stroke-linejoin="round"/>`;
+    g+=`<path d="${line("total")}" fill="none" style="stroke:var(--ochre)" stroke-width="3.2" stroke-linejoin="round" stroke-linecap="round"/>`;
+    // 退職の線
+    if(ans.start>a0){ const xs=x(ans.start); g+=`<line x1="${xs}" x2="${xs}" y1="${T}" y2="${base}" style="stroke:var(--ink-2)" stroke-dasharray="3 4"/>`;
+      const yr=ys.find(p=>p.age===ans.start); if(yr) g+=`<circle cx="${xs}" cy="${y(yr.total)}" r="4.5" style="fill:var(--surface);stroke:var(--ochre)" stroke-width="2.5"/>`; }
+    // 終わりの印
+    if(r.deadAge!==null && !r.noMoney){ const xd=x(Math.min(r.deadAge,a1)); g+=`<circle cx="${xd}" cy="${base}" r="5" style="fill:var(--bad)"/><text x="${Math.min(xd+8,W-R-4)}" y="${base-10}" font-size="12" font-weight="700" style="fill:var(--bad)" text-anchor="${xd>W-120?"end":"start"}">${r.deadAge}歳で尽きる</text>`; }
+    else { const e=pl[pl.length-1], xe=x(e.age), ye=y(e.total); g+=`<circle cx="${xe}" cy="${ye}" r="5" style="fill:var(--ochre)"/><text x="${xe-8}" y="${Math.max(T+12,ye-10)}" class="endlab" font-size="12.5" font-weight="700" text-anchor="end" style="fill:var(--ink)">${man(e.total)}万円</text>`; }
+    // なぞった時の表示
+    g+=`<g id="hov" style="display:none;pointer-events:none"><line id="hvl" y1="${T}" y2="${base}" style="stroke:var(--ink-3)" stroke-width="1"/>
+        <circle id="hvt" r="5" style="fill:var(--ochre);stroke:var(--surface)" stroke-width="2"/><circle id="hvc" r="4" style="fill:var(--blue);stroke:var(--surface)" stroke-width="2"/>
+        <rect id="hvb" class="tip-bg" width="150" height="62" rx="8"/><text id="hv1" font-size="12.5" font-weight="700" style="fill:var(--ink)"></text>
+        <text id="hv2" font-size="12" style="fill:var(--ochre)"></text><text id="hv3" font-size="12" style="fill:var(--blue)"></text></g>
+        <rect x="${L}" y="${T}" width="${W-L-R}" height="${base-T}" fill="transparent" id="hvcap"/>`;
+    svg.innerHTML=g; lastR=r;
+    CH={ys,x,y,a0,a1,span,L,R,T,W,base};
+  }
+  function hover(ev){
+    if(!CH) return; const svg=$("chart"), rc=svg.getBoundingClientRect(), sc=CH.W/rc.width;
+    const px=(ev.clientX-rc.left)*sc; let age=Math.round(CH.a0+(px-CH.L)/(CH.W-CH.L-CH.R)*CH.span);
+    age=Math.max(CH.a0,Math.min(CH.ys[CH.ys.length-1].age,age)); const p=CH.ys[age-CH.a0]; if(!p) return;
+    const xx=CH.x(age), bw=150, bx = xx+12+bw > CH.W-CH.R ? xx-12-bw : xx+12, by=CH.T+4;
+    const s=(id,attrs)=>{ const e=$(id); for(const k in attrs) e.setAttribute(k,attrs[k]); return e; };
+    $("hov").style.display="";
+    s("hvl",{x1:xx,x2:xx}); s("hvt",{cx:xx,cy:CH.y(p.total)}); s("hvc",{cx:xx,cy:CH.y(p.cash)});
+    s("hvb",{x:bx,y:by}); s("hv1",{x:bx+12,y:by+20}).textContent=`${age}歳（${p.dead?"尽きた":p.phase}）`;
+    s("hv2",{x:bx+12,y:by+38}).textContent=`合計 ${man(p.total)}万円`; s("hv3",{x:bx+12,y:by+54}).textContent=`現金 ${man(p.cash)}万円`;
+  }
+  let lastR=null, rz=null; window.addEventListener("resize", ()=>{ clearTimeout(rz); rz=setTimeout(()=>{ if(lastR) drawChart(lastR); },150); });
+  $("chart").addEventListener("pointermove", hover);
+  $("chart").addEventListener("pointerdown", hover);
+  $("chart").addEventListener("pointerleave", ()=>{ const h=$("hov"); if(h) h.style.display="none"; });
+
+  sync(); update();
+})();
+</script>
+<script>
+(function(){
+  const sp=document.getElementById("tabSp"), pc=document.getElementById("tabPc");
+  const psp=document.getElementById("howSp"), ppc=document.getElementById("howPc");
+  function pick(isPc){ sp.setAttribute("aria-selected",String(!isPc)); pc.setAttribute("aria-selected",String(isPc)); psp.hidden=isPc; ppc.hidden=!isPc; }
+  sp.addEventListener("click",()=>pick(false)); pc.addEventListener("click",()=>pick(true));
+  pick(window.matchMedia("(min-width:960px)").matches);
+})();
+</script>
+
+</body>
+</html>
